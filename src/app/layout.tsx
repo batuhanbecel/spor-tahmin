@@ -1,12 +1,20 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Barlow, Barlow_Condensed } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
-const inter = Inter({
+const barlow = Barlow({
   subsets: ["latin", "latin-ext"],
-  variable: "--font-inter",
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-barlow",
+  display: "swap",
+});
+
+const barlowCondensed = Barlow_Condensed({
+  subsets: ["latin", "latin-ext"],
+  weight: ["500", "600", "700"],
+  variable: "--font-barlow-condensed",
   display: "swap",
 });
 
@@ -15,35 +23,36 @@ const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://spor.tavukciftligi.l
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Şampiyonlar Ligi Tahmin Ligi 2026/27",
-    template: "%s · ŞL Tahmin 2026/27",
+    default: "Tahmin Ligi · Avrupa'nın en büyük kupası 2026/27",
+    template: "%s · Tahmin Ligi",
   },
   description:
-    "UEFA Şampiyonlar Ligi 2026/27 sezonu için maç skoru, lig aşaması sıralaması ve eleme turu tahminleri. Arkadaşlarınla lig kur, genel sıralamada yarış.",
+    "36 takım, 8 hafta, tek kupa. Maç skorlarını tahmin et, lig aşaması tablosunu baştan sırala, bracket'ini kur. Kimin ne dediğini gör.",
   openGraph: {
     type: "website",
     locale: "tr_TR",
     url: siteUrl,
-    siteName: "ŞL Tahmin 2026/27",
-    title: "Şampiyonlar Ligi Tahmin Ligi 2026/27",
+    siteName: "Tahmin Ligi 2026/27",
+    title: "Tahmin Ligi · Avrupa'nın en büyük kupası 2026/27",
     description:
-      "Maç skorlarını tahmin et, 36 takımlık lig aşaması tablosunu sırala, bracket'ını kur. Arkadaşlarınla yarış.",
+      "Maç skorlarını tahmin et, 36 takımlık tabloyu sırala, bracket'ini kur. Kimin ne dediğini gör.",
   },
   robots: { index: true, follow: true },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#030616",
+  themeColor: "#04070f",
 };
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="tr" className={inter.variable}>
+    <html lang="tr" className={`${barlow.variable} ${barlowCondensed.variable}`}>
       <body className="flex min-h-screen flex-col font-sans antialiased">
+        <div className="sky" aria-hidden="true" />
         <SiteHeader />
-        <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-20 pt-6 sm:px-6">
+        <main className="mx-auto w-full max-w-[--shell] flex-1 px-4 pb-24 pt-6 sm:px-6">
           {children}
         </main>
         <SiteFooter />

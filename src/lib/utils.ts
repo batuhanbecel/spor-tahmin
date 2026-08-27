@@ -80,3 +80,13 @@ export function displayName(u: { nickname?: string | null; name?: string | null 
 export function nowMs(): number {
   return Date.now();
 }
+
+/** Maç başladı mı? Tarih geçtiyse ya da durum oynanıyor/bittiyse evet. */
+export function hasStarted(
+  match: { utcDate: Date | string; status: string },
+  now: number = nowMs(),
+): boolean {
+  if (["IN_PLAY", "PAUSED", "FINISHED"].includes(match.status)) return true;
+  const d = typeof match.utcDate === "string" ? new Date(match.utcDate) : match.utcDate;
+  return d.getTime() <= now;
+}

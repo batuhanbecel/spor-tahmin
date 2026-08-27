@@ -48,8 +48,8 @@ export default async function ProfilPage() {
   return (
     <div className="space-y-6">
       <header className="space-y-1">
-        <h1 className="text-2xl font-bold sm:text-3xl">Profilim</h1>
-        <p className="text-sm text-white/50">{me.email}</p>
+        <h1 className="display text-3xl text-silver-100 sm:text-4xl">Profilim</h1>
+        <p className="text-sm text-silver-500">{me.email}</p>
       </header>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -62,32 +62,32 @@ export default async function ProfilPage() {
       <div className="grid gap-4 lg:grid-cols-3">
         <NicknameForm current={me.nickname ?? ""} />
 
-        <div className="card space-y-2 p-5">
-          <h2 className="text-base font-semibold">Sıralama tahmini</h2>
+        <div className="panel space-y-2 p-5">
+          <h2 className="display text-base text-silver-100">Sıralama tahmini</h2>
           {standings ? (
-            <p className="text-sm text-white/55">
+            <p className="text-sm text-silver-400">
               {standings.order.length} takım sıralandı.{" "}
               {standings.points != null
                 ? `${standings.points} puan aldın.`
                 : "Lig aşaması bitince puanlanacak."}
             </p>
           ) : (
-            <p className="text-sm text-white/45">Henüz sıralama tahmini yapmadın.</p>
+            <p className="text-sm text-silver-500">Henüz sıralama tahmini yapmadın.</p>
           )}
           <Link href="/siralama" className="btn-ghost w-full">
             Sıralamaya git
           </Link>
         </div>
 
-        <div className="card space-y-2 p-5">
-          <h2 className="text-base font-semibold">Bracket</h2>
+        <div className="panel space-y-2 p-5">
+          <h2 className="display text-base text-silver-100">Bracket</h2>
           {bracket ? (
-            <p className="text-sm text-white/55">
+            <p className="text-sm text-silver-400">
               Bracket kaydedildi.{" "}
               {bracket.points != null ? `${bracket.points} puan.` : "Eleme turlarında puanlanacak."}
             </p>
           ) : (
-            <p className="text-sm text-white/45">Henüz bracket doldurmadın.</p>
+            <p className="text-sm text-silver-500">Henüz bracket doldurmadın.</p>
           )}
           <Link href="/bracket" className="btn-ghost w-full">
             Bracket&apos;e git
@@ -96,18 +96,18 @@ export default async function ProfilPage() {
       </div>
 
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-white/40">
+        <h2 className="eyebrow">
           Son tahminlerim
         </h2>
         {recent.length === 0 ? (
-          <div className="card p-8 text-center text-sm text-white/45">
+          <div className="panel p-8 text-center text-sm text-silver-500">
             Henüz maç tahmini yapmadın.{" "}
-            <Link href="/maclar" className="text-star-400 hover:underline">
+            <Link href="/maclar" className="text-blue-400 hover:underline">
               Hemen başla
             </Link>
           </div>
         ) : (
-          <div className="card divide-y divide-white/6 overflow-hidden">
+          <div className="panel divide-y divide-white/6 overflow-hidden">
             {recent.map((r) => {
               const home = r.homeTeamId ? teamById.get(r.homeTeamId) : undefined;
               const away = r.awayTeamId ? teamById.get(r.awayTeamId) : undefined;
@@ -116,15 +116,15 @@ export default async function ProfilPage() {
                   <div className="flex min-w-0 flex-1 items-center gap-2">
                     <TeamCrest team={home} size={20} />
                     <span className="min-w-0 truncate">{home?.shortName || home?.name}</span>
-                    <span className="text-white/25">—</span>
+                    <span className="text-silver-600">—</span>
                     <TeamCrest team={away} size={20} />
                     <span className="min-w-0 truncate">{away?.shortName || away?.name}</span>
                   </div>
-                  <span className="shrink-0 tabular-nums text-white/50">
+                  <span className="shrink-0 tabular-nums text-silver-500">
                     {r.homeGoals}-{r.awayGoals}
                   </span>
                   {r.status === "FINISHED" && (
-                    <span className="shrink-0 tabular-nums text-white/35">
+                    <span className="shrink-0 tabular-nums text-silver-600">
                       ({r.actualHome}-{r.actualAway})
                     </span>
                   )}
@@ -132,12 +132,12 @@ export default async function ProfilPage() {
                     className={cn(
                       "w-14 shrink-0 text-right font-semibold tabular-nums",
                       r.points == null
-                        ? "text-white/25"
+                        ? "text-silver-600"
                         : r.points >= 5
-                          ? "text-lime-accent"
+                          ? "text-gold-400"
                           : r.points > 0
-                            ? "text-star-400"
-                            : "text-white/30",
+                            ? "text-blue-400"
+                            : "text-silver-600",
                     )}
                   >
                     {r.points == null ? formatDateTime(r.utcDate).split(" ")[0] : `+${r.points}`}
@@ -162,12 +162,12 @@ function Stat({
   accent?: boolean;
 }) {
   return (
-    <div className="card p-4">
-      <p className="text-xs uppercase tracking-wide text-white/40">{label}</p>
+    <div className="panel p-4">
+      <p className="text-xs uppercase tracking-wide text-silver-500">{label}</p>
       <p
         className={cn(
           "mt-1 text-2xl font-bold tabular-nums",
-          accent && "text-lime-accent",
+          accent && "text-gold-400",
         )}
       >
         {value}

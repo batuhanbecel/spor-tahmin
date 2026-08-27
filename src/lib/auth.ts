@@ -4,8 +4,11 @@ import { nextCookies } from "better-auth/next-js";
 import { db } from "@/db";
 import * as schema from "@/db/schema";
 
-const hasGoogle = Boolean(
+export const hasGoogle = Boolean(
   process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET,
+);
+export const hasDiscord = Boolean(
+  process.env.DISCORD_CLIENT_ID && process.env.DISCORD_CLIENT_SECRET,
 );
 
 export const auth = betterAuth({
@@ -26,14 +29,26 @@ export const auth = betterAuth({
     minPasswordLength: 8,
     autoSignIn: true,
   },
-  socialProviders: hasGoogle
-    ? {
-        google: {
-          clientId: process.env.GOOGLE_CLIENT_ID as string,
-          clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-        },
-      }
-    : undefined,
+  socialProviders: {
+    ...(hasDiscord
+      ? {
+          discord: {
+            clientId: process.env.DISCORD_CLIENT_ID as string,
+            clientSecret: process.env.DISCORD_CLIENT_SECRET as string,
+            // Discord avatarı ve global ismi için
+            scope: ["identify", "email"],
+          },
+        }
+      : {}),
+    ...(hasGoogle
+      ? {
+          google: {
+            clientId: process.env.GOOGLE_CLIENT_ID as string,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+          },
+        }
+      : {}),
+  },
   user: {
     additionalFields: {
       nickname: {

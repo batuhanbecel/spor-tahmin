@@ -27,7 +27,7 @@ export function TeamCrest({
   return (
     <span
       className={cn(
-        "grid shrink-0 place-items-center rounded-md bg-white/8 text-[10px] font-bold text-white/50",
+        "grid shrink-0 place-items-center rounded-md bg-white/8 text-[10px] font-bold text-silver-500",
         className,
       )}
       style={{ width: size, height: size }}

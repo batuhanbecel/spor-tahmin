@@ -12,7 +12,7 @@ export function NicknameForm({ current }: { current: string }) {
 
   return (
     <form
-      className="card space-y-3 p-5"
+      className="panel space-y-3 p-5"
       onSubmit={(e) => {
         e.preventDefault();
         setMsg(null);
@@ -24,7 +24,7 @@ export function NicknameForm({ current }: { current: string }) {
       }}
     >
       <h2 className="text-base font-semibold">Takma ad</h2>
-      <p className="text-sm text-white/45">Sıralamalarda bu ad görünür.</p>
+      <p className="text-sm text-silver-500">Sıralamalarda bu ad görünür.</p>
       <input
         className="input"
         value={value}
@@ -36,7 +36,7 @@ export function NicknameForm({ current }: { current: string }) {
         {pending ? "Kaydediliyor…" : "Kaydet"}
       </button>
       {msg && (
-        <p className={msg.ok ? "text-sm text-lime-accent" : "text-sm text-amber-accent"}>
+        <p className={msg.ok ? "text-sm text-pitch-400" : "text-sm text-flag-400"}>
           {msg.message}
         </p>
       )}

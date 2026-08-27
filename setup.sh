@@ -57,7 +57,7 @@ else
 
   BETTER_AUTH_SECRET="$(openssl rand -base64 32)"
   CRON_SECRET="$(openssl rand -hex 24)"
-  FD_SEASON="2026"
+  FD_SEASON=""
 
   cat > .env.local <<EOF
 DATABASE_URL="${DATABASE_URL}"
@@ -73,7 +73,7 @@ fi
 
 : "${DATABASE_URL:?}"; : "${FOOTBALL_DATA_TOKEN:?}"
 : "${BETTER_AUTH_SECRET:?}"; : "${CRON_SECRET:?}"
-FD_SEASON="${FD_SEASON:-2026}"
+FD_SEASON="${FD_SEASON:-}"
 
 # ---------------------------------------------------------------- 2. bağımlılıklar
 step "Bağımlılıklar"

@@ -1,16 +1,17 @@
 import Link from "next/link";
 import { getSession } from "@/lib/session";
 import { displayName } from "@/lib/utils";
+import { Starball } from "./starball";
 import { MobileNav } from "./mobile-nav";
 import { UserMenu } from "./user-menu";
 
 export const NAV_LINKS = [
   { href: "/maclar", label: "Maçlar" },
-  { href: "/siralama", label: "Sıralama Tahmini" },
+  { href: "/siralama", label: "Sıralama" },
   { href: "/bracket", label: "Bracket" },
+  { href: "/takimlar", label: "Takımlar" },
   { href: "/puan-durumu", label: "Puan Durumu" },
-  { href: "/ligler", label: "Ligler" },
-  { href: "/siralamalar", label: "Genel Sıralama" },
+  { href: "/siralamalar", label: "Klasman" },
 ];
 
 export async function SiteHeader() {
@@ -18,24 +19,24 @@ export async function SiteHeader() {
   const u = session?.user;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/8 bg-night-950/80 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-4 px-4 sm:px-6">
-        <Link href="/" className="flex shrink-0 items-center gap-2.5">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-star-500 to-star-600 text-base font-black text-white shadow-[0_8px_24px_-10px_rgba(63,125,255,0.9)]">
-            ŞL
-          </span>
-          <span className="hidden text-sm font-bold leading-tight sm:block">
-            Tahmin Ligi
-            <span className="block text-[11px] font-medium text-white/45">2026/27</span>
+    <header className="sticky top-0 z-40 border-b border-white/8 bg-night-1000/85 backdrop-blur-xl">
+      <div className="mx-auto flex h-[64px] w-full max-w-[--shell] items-center gap-5 px-4 sm:px-6">
+        <Link href="/" className="group flex shrink-0 items-center gap-2.5">
+          <Starball size={30} className="transition-transform group-hover:rotate-[22deg]" />
+          <span className="hidden leading-none sm:block">
+            <span className="display block text-[15px] text-silver-100">Tahmin Ligi</span>
+            <span className="block pt-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-silver-500">
+              2026/27
+            </span>
           </span>
         </Link>
 
-        <nav className="hidden flex-1 items-center gap-1 lg:flex">
+        <nav className="hidden flex-1 items-center gap-0.5 lg:flex">
           {NAV_LINKS.map((l) => (
             <Link
               key={l.href}
               href={l.href}
-              className="rounded-lg px-3 py-2 text-sm font-medium text-white/65 transition-colors hover:bg-white/6 hover:text-white"
+              className="display rounded-md px-3 py-2 text-[13px] text-silver-400 transition-colors hover:bg-white/6 hover:text-silver-100"
             >
               {l.label}
             </Link>
@@ -44,13 +45,13 @@ export async function SiteHeader() {
 
         <div className="ml-auto flex items-center gap-2">
           {u ? (
-            <UserMenu name={displayName(u)} image={u.image ?? null} />
+            <UserMenu name={displayName(u)} image={u.image ?? null} userId={u.id} />
           ) : (
             <>
-              <Link href="/giris" className="btn-ghost hidden sm:inline-flex">
-                Giriş yap
+              <Link href="/giris" className="btn-ghost hidden text-[13px] sm:inline-flex">
+                Giriş
               </Link>
-              <Link href="/kayit" className="btn-primary">
+              <Link href="/kayit" className="btn-primary text-[13px]">
                 Katıl
               </Link>
             </>

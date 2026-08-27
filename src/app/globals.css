@@ -1,27 +1,46 @@
 @import "tailwindcss";
 
 @theme {
-  --color-night-950: #030616;
-  --color-night-900: #070c22;
-  --color-night-850: #0a1130;
-  --color-night-800: #0e173f;
-  --color-night-700: #16215a;
-  --color-night-600: #1e2d78;
+  /* Gece — derinden yüzeye */
+  --color-night-1000: #04070f;
+  --color-night-900: #070c1a;
+  --color-night-850: #091124;
+  --color-night-800: #0c1730;
+  --color-night-700: #122043;
+  --color-night-600: #1a2c5c;
 
-  --color-star-400: #6ea8ff;
-  --color-star-500: #3f7dff;
-  --color-star-600: #2b5fe0;
+  /* Saha mavisi */
+  --color-blue-700: #14318f;
+  --color-blue-600: #1b47c4;
+  --color-blue-500: #2f6bef;
+  --color-blue-400: #5b96ff;
+  --color-blue-300: #93baff;
 
-  --color-lime-accent: #c8f31d;
-  --color-amber-accent: #ffb020;
+  /* Gümüş — metin ve çizgiler */
+  --color-silver-100: #eef3fb;
+  --color-silver-200: #dbe4f2;
+  --color-silver-300: #c1cee5;
+  --color-silver-400: #93a3c0;
+  --color-silver-500: #6b7c9c;
+  --color-silver-600: #4a5872;
 
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  /* Kupa altını — şampiyon, tam skor, zirve */
+  --color-gold-300: #f7dca0;
+  --color-gold-400: #f0c46a;
+  --color-gold-500: #dfa83c;
 
-  --radius-card: 1rem;
+  --color-pitch-400: #34d399;
+  --color-flag-400: #fb7185;
+
+  --font-display: var(--font-barlow-condensed), "Barlow Condensed", ui-sans-serif, sans-serif;
+  --font-sans: var(--font-barlow), Barlow, ui-sans-serif, system-ui, sans-serif;
+
+  --radius-card: 0.875rem;
 }
 
 :root {
   color-scheme: dark;
+  --shell: 1180px;
 }
 
 html,
@@ -30,86 +49,148 @@ body {
 }
 
 body {
-  background:
-    radial-gradient(1200px 700px at 12% -10%, rgba(63, 125, 255, 0.22), transparent 60%),
-    radial-gradient(900px 600px at 92% 0%, rgba(200, 243, 29, 0.09), transparent 55%),
-    var(--color-night-950);
-  color: #e8ecf8;
+  background-color: var(--color-night-1000);
+  color: var(--color-silver-200);
+  font-feature-settings: "tnum" 0;
   -webkit-font-smoothing: antialiased;
 }
 
+/* Yıldız alanı + sahne ışıkları — gövdeye sabit, içerik üstünde kayar */
+.sky {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(1100px 620px at 50% -8%, rgba(47, 107, 239, 0.28), transparent 62%),
+    radial-gradient(760px 460px at 8% 12%, rgba(27, 71, 196, 0.16), transparent 60%),
+    radial-gradient(820px 500px at 96% 6%, rgba(91, 150, 255, 0.12), transparent 58%),
+    linear-gradient(180deg, #071026 0%, var(--color-night-1000) 46%);
+}
+
+.sky::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1.4px 1.4px at 12% 18%, rgba(255, 255, 255, 0.5), transparent 100%),
+    radial-gradient(1.2px 1.2px at 76% 9%, rgba(255, 255, 255, 0.4), transparent 100%),
+    radial-gradient(1.6px 1.6px at 33% 41%, rgba(255, 255, 255, 0.35), transparent 100%),
+    radial-gradient(1.1px 1.1px at 62% 27%, rgba(255, 255, 255, 0.45), transparent 100%),
+    radial-gradient(1.5px 1.5px at 88% 36%, rgba(255, 255, 255, 0.3), transparent 100%),
+    radial-gradient(1.2px 1.2px at 22% 63%, rgba(255, 255, 255, 0.28), transparent 100%),
+    radial-gradient(1.3px 1.3px at 54% 76%, rgba(255, 255, 255, 0.22), transparent 100%);
+  mask-image: linear-gradient(180deg, black 0%, transparent 72%);
+}
+
 @layer components {
-  .card {
-    @apply rounded-2xl border border-white/8 bg-white/4 backdrop-blur-sm;
+  /* ---------------------------------------------------------- yüzeyler */
+  .panel {
+    @apply rounded-[--radius-card] border border-white/8 bg-night-850/70 backdrop-blur-sm;
   }
 
-  .card-hover {
-    @apply transition-colors hover:border-white/15 hover:bg-white/6;
+  .panel-raised {
+    @apply rounded-[--radius-card] border border-white/10 bg-night-800/80 backdrop-blur;
+    box-shadow:
+      0 1px 0 0 rgba(255, 255, 255, 0.05) inset,
+      0 24px 60px -32px rgba(0, 0, 0, 0.9);
   }
 
+  .panel-hover {
+    @apply transition-colors hover:border-blue-500/40 hover:bg-night-800/90;
+  }
+
+  /* ---------------------------------------------------------- tipografi */
+  .display {
+    font-family: var(--font-display);
+    @apply font-semibold uppercase tracking-[0.01em];
+  }
+
+  .eyebrow {
+    font-family: var(--font-display);
+    @apply text-[11px] font-semibold uppercase tracking-[0.18em] text-silver-500;
+  }
+
+  .num {
+    font-variant-numeric: tabular-nums;
+    @apply tabular-nums;
+  }
+
+  /* ---------------------------------------------------------- butonlar */
   .btn,
   .btn-primary,
-  .btn-accent,
+  .btn-gold,
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold
-           transition-all disabled:cursor-not-allowed disabled:opacity-50;
+    font-family: var(--font-display);
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm
+           font-semibold uppercase tracking-wider transition-all
+           disabled:cursor-not-allowed disabled:opacity-45;
   }
 
   .btn-primary {
-    @apply bg-star-500 text-white hover:bg-star-400 active:scale-[0.98]
-           shadow-[0_8px_30px_-12px_rgba(63,125,255,0.9)];
+    @apply bg-blue-500 text-white hover:bg-blue-400 active:translate-y-px;
+    box-shadow: 0 10px 30px -14px rgba(47, 107, 239, 0.95);
   }
 
-  .btn-accent {
-    @apply bg-lime-accent text-night-950 hover:brightness-110 active:scale-[0.98];
+  .btn-gold {
+    @apply bg-gold-400 text-night-1000 hover:bg-gold-300 active:translate-y-px;
+    box-shadow: 0 10px 30px -14px rgba(240, 196, 106, 0.8);
   }
 
   .btn-ghost {
-    @apply border border-white/12 bg-white/5 text-white/90 hover:bg-white/10;
+    @apply border border-white/14 bg-white/4 text-silver-200 hover:border-white/25 hover:bg-white/8;
   }
 
+  /* ---------------------------------------------------------- form */
   .input {
-    @apply w-full rounded-xl border border-white/12 bg-night-900/70 px-3.5 py-2.5 text-sm
-           text-white placeholder:text-white/35
-           focus:border-star-500 focus:outline-none focus:ring-2 focus:ring-star-500/25;
+    @apply w-full rounded-lg border border-white/12 bg-night-900/80 px-3.5 py-2.5 text-sm
+           text-silver-100 placeholder:text-silver-600
+           focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/25;
   }
 
   .label {
-    @apply mb-1.5 block text-xs font-medium uppercase tracking-wide text-white/50;
+    font-family: var(--font-display);
+    @apply mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-silver-500;
   }
 
   .chip {
-    @apply inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5
-           px-2.5 py-1 text-[11px] font-medium text-white/70;
+    @apply inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-white/5
+           px-2 py-0.5 text-[11px] font-medium text-silver-400;
   }
+
+  /* Bölge şeritleri — puan durumu ve sıralama tahmini */
+  .zone-direct { @apply bg-gold-400; }
+  .zone-playoff { @apply bg-blue-500; }
+  .zone-out { @apply bg-white/12; }
 }
 
-/* Skor girişi için sayı okları gizlensin */
+/* Skor girişlerinde sayı okları */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
-input[type="number"] {
-  -moz-appearance: textfield;
-}
+input[type="number"] { -moz-appearance: textfield; }
 
 ::selection {
-  background: var(--color-star-500);
+  background: var(--color-blue-500);
   color: white;
 }
 
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 999px;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.18); }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

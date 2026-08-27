@@ -1,12 +1,18 @@
 /**
  * football-data.org v4 istemcisi.
- * Ücretsiz tier Şampiyonlar Ligi'ni (CL) kapsar — 10 istek/dakika sınırı vardır.
+ *
+ * Ücretsiz katman Şampiyonlar Ligi'ni kapsar ama YALNIZCA güncel sezonu verir ve
+ * dakikada 10 istek sınırı vardır. `season` filtresi ücretsiz katmanda kısıtlı
+ * olduğu için varsayılan olarak parametresiz çağrı yapılır — API zaten güncel
+ * sezonu döndürür. FD_SEASON tanımlanırsa önce onunla denenir, boş dönerse
+ * parametresiz çağrıya düşülür.
  */
 
 const BASE = "https://api.football-data.org/v4";
 export const COMPETITION = "CL";
-/** 2026-27 sezonu API'de başlangıç yılıyla anılır. */
-export const SEASON = process.env.FD_SEASON ?? "2026";
+
+/** Boş bırakılırsa güncel sezon kullanılır (ücretsiz katman için doğrusu budur). */
+export const SEASON = process.env.FD_SEASON?.trim() || null;
 
 export type FdTeam = {
   id: number;
@@ -34,17 +40,13 @@ export type FdMatch = {
   };
 };
 
-export type FdStandingRow = {
-  position: number;
-  team: FdTeam;
-  playedGames: number;
-  won: number;
-  draw: number;
-  lost: number;
-  points: number;
-  goalsFor: number;
-  goalsAgainst: number;
-  goalDifference: number;
+/** Her istek için ne olduğunu kaydeder — teşhis çıktısında gösterilir. */
+export type FdAttempt = {
+  url: string;
+  status: number;
+  ok: boolean;
+  count?: number;
+  error?: string;
 };
 
 function token() {
@@ -53,34 +55,95 @@ function token() {
   return t;
 }
 
-async function fd<T>(path: string, revalidate = 300): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, {
-    headers: { "X-Auth-Token": token() },
-    next: { revalidate },
-  });
-  if (!res.ok) {
-    const body = await res.text().catch(() => "");
-    throw new Error(`football-data ${res.status} — ${path} — ${body.slice(0, 200)}`);
+async function call<T>(path: string, attempts: FdAttempt[]): Promise<T | null> {
+  const url = `${BASE}${path}`;
+  try {
+    const res = await fetch(url, {
+      headers: { "X-Auth-Token": token() },
+      cache: "no-store",
+    });
+    const text = await res.text();
+
+    if (!res.ok) {
+      attempts.push({
+        url: path,
+        status: res.status,
+        ok: false,
+        error: text.slice(0, 300),
+      });
+      return null;
+    }
+
+    const json = JSON.parse(text) as T;
+    attempts.push({ url: path, status: res.status, ok: true });
+    return json;
+  } catch (err) {
+    attempts.push({
+      url: path,
+      status: 0,
+      ok: false,
+      error: err instanceof Error ? err.message : "bilinmeyen hata",
+    });
+    return null;
   }
-  return (await res.json()) as T;
 }
 
-export function fetchTeams() {
-  return fd<{ teams: FdTeam[] }>(
-    `/competitions/${COMPETITION}/teams?season=${SEASON}`,
-    60 * 60 * 24,
+/**
+ * Önce FD_SEASON ile (varsa), sonra parametresiz dener.
+ * İlk dolu sonucu döndürür.
+ */
+async function withFallback<T>(
+  build: (query: string) => string,
+  pick: (data: T) => unknown[],
+  attempts: FdAttempt[],
+): Promise<T | null> {
+  const queries: string[] = [];
+  if (SEASON) queries.push(`?season=${SEASON}`);
+  queries.push("");
+
+  let lastNonEmpty: T | null = null;
+
+  for (const q of queries) {
+    const data = await call<T>(build(q), attempts);
+    if (!data) continue;
+    const items = pick(data);
+    attempts[attempts.length - 1].count = items.length;
+    if (items.length > 0) return data;
+    lastNonEmpty = data;
+  }
+
+  return lastNonEmpty;
+}
+
+export async function fetchTeams(attempts: FdAttempt[] = []) {
+  const data = await withFallback<{ teams: FdTeam[] }>(
+    (q) => `/competitions/${COMPETITION}/teams${q}`,
+    (d) => d.teams ?? [],
+    attempts,
   );
+  return { teams: data?.teams ?? [], attempts };
 }
 
-export function fetchMatches() {
-  return fd<{ matches: FdMatch[] }>(
-    `/competitions/${COMPETITION}/matches?season=${SEASON}`,
-    120,
+export async function fetchMatches(attempts: FdAttempt[] = []) {
+  const data = await withFallback<{ matches: FdMatch[] }>(
+    (q) => `/competitions/${COMPETITION}/matches${q}`,
+    (d) => d.matches ?? [],
+    attempts,
   );
+  return { matches: data?.matches ?? [], attempts };
 }
 
-export function fetchStandings() {
-  return fd<{
-    standings: { stage: string; type: string; group: string | null; table: FdStandingRow[] }[];
-  }>(`/competitions/${COMPETITION}/standings?season=${SEASON}`, 300);
+/** Yarışmanın güncel sezon bilgisi — teşhis için. */
+export async function fetchCompetition(attempts: FdAttempt[] = []) {
+  const data = await call<{
+    name: string;
+    code: string;
+    currentSeason?: {
+      id: number;
+      startDate: string;
+      endDate: string;
+      currentMatchday: number | null;
+    };
+  }>(`/competitions/${COMPETITION}`, attempts);
+  return data;
 }

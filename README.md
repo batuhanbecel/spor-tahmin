@@ -5,8 +5,9 @@
 - **Maç skoru tahmini** — 8 haftalık lig aşaması + tüm eleme turları, maç saatinde otomatik kilit
 - **Lig aşaması sıralama tahmini** — 36 takımlık tabloyu sürükle-bırak ile sırala
 - **Eleme turu bracket'i** — son 16'dan şampiyona kademeli seçim
-- **Arkadaş ligleri** — davet kodlu özel mini ligler
-- **Genel sıralama** — üç bölümün toplam puanı
+- **Tahmin şeffaflığı** — takım sayfasında 8 maçın her biri için "kazanır / berabere / kaybeder"
+  dağılımı, kimin hangi sıraya koyduğu, kimin şampiyon dediği
+- **Klasman** — üç bölümün toplam puanı, oyuncu başına herkese açık tahmin karnesi
 
 ## Stack
 
@@ -14,7 +15,7 @@
 |---|---|
 | Framework | Next.js 16 (App Router, Turbopack, React 19) |
 | Veritabanı | Postgres (Neon) + Drizzle ORM |
-| Auth | Better Auth (e-posta/şifre + Google) |
+| Auth | Better Auth (Discord, Google, e-posta/şifre) |
 | UI | Tailwind CSS v4, lucide-react, dnd-kit |
 | Veri | football-data.org v4 API |
 | Deploy | Vercel |
@@ -67,13 +68,14 @@ npx tsx scripts/seed-demo.ts   # 36 takım + 8 haftalık örnek fikstür
 | `BETTER_AUTH_URL` | ✓ | `https://spor.tavukciftligi.lol` |
 | `NEXT_PUBLIC_APP_URL` | ✓ | Aynı adres (istemci tarafı) |
 | `FOOTBALL_DATA_TOKEN` | ✓ | football-data.org ücretsiz API anahtarı |
-| `FD_SEASON` | — | Varsayılan `2026` (2026/27 sezonu) |
+| `FD_SEASON` | — | **Boş bırak.** Ücretsiz katman sadece güncel sezonu verir |
+| `DISCORD_CLIENT_ID` / `DISCORD_CLIENT_SECRET` | — | Boşsa Discord butonu gizlenir |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | — | Boşsa Google butonu gizlenir |
 | `CRON_SECRET` | ✓ | `/api/cron/sync` erişim anahtarı |
 
 ## 3. Vercel'e deploy
 
-1. Repoyu GitHub'a it, Vercel'de **Import Project**.
+1. Repoyu GitHub'a it, Vercel'de **Import Project** (ya da `./setup.sh`).
 2. **Storage → Neon**: Vercel Marketplace'ten Neon ekle; `DATABASE_URL` otomatik gelir.
 3. Yukarıdaki tüm env değişkenlerini Production + Preview için gir.
 4. Deploy sonrası şemayı uygula:
@@ -107,6 +109,18 @@ Maç günlerinde canlı skor ve anlık puanlama istiyorsan iki seçenek var:
 
 > football-data.org ücretsiz katmanı dakikada 10 istek verir; her senkron 2 istek harcar.
 
+### Discord ile giriş
+
+[Discord Developer Portal](https://discord.com/developers/applications) → **New Application** →
+**OAuth2** sekmesi:
+
+```
+Redirects:  https://spor.tavukciftligi.lol/api/auth/callback/discord
+```
+
+**Client ID** ve **Client Secret**'ı `DISCORD_CLIENT_ID` / `DISCORD_CLIENT_SECRET` olarak gir.
+Kullanıcının Discord avatarı ve adı otomatik gelir; profil resimleri sitenin her yerinde görünür.
+
 ### Google ile giriş
 
 Google Cloud Console → OAuth 2.0 Client ID:
@@ -115,6 +129,19 @@ Google Cloud Console → OAuth 2.0 Client ID:
 Authorized JavaScript origins:  https://spor.tavukciftligi.lol
 Authorized redirect URIs:       https://spor.tavukciftligi.lol/api/auth/callback/google
 ```
+
+### Veri gelmiyorsa
+
+`/api/cron/sync` cevabı kendi teşhisini içerir — `diagnostics.attempts` her API çağrısının
+HTTP kodunu ve dönen kayıt sayısını gösterir, `diagnostics.note` de muhtemel sebebi yazar:
+
+```bash
+curl "https://spor.tavukciftligi.lol/api/cron/sync?key=CRON_SECRET" | jq .diagnostics
+```
+
+- **403** → `FD_SEASON` dolu olabilir; boşalt. Ücretsiz katman sezon filtresini kısıtlar.
+- **429** → dakikada 10 istek sınırı; bir dakika bekle.
+- **200 ama 0 maç** → kura yeni çekildiyse fikstürün football-data'ya düşmesi birkaç saat sürer.
 
 ---
 
@@ -139,6 +166,10 @@ bilinen takım başına +2, 36 sıranın tamamı doğruysa +50.
 **Kilitler** — maç tahmini maç saatinde, sıralama tahmini lig aşamasının ilk maçında,
 bracket play-off'un ilk maçında kapanır.
 
+**Görünürlük** — dağılım yüzdeleri (%42 kazanır gibi) her zaman açık; kimin tam olarak ne
+yazdığı maç başlayınca açılır. Sıralama tahminleri lig aşaması başlayınca, bracket'ler
+play-off başlayınca herkese açık olur. Böylece kimse kopya çekemez.
+
 ---
 
 ## 5. Proje yapısı
@@ -146,15 +177,18 @@ bracket play-off'un ilk maçında kapanır.
 ```
 src/
   app/
-    actions.ts              tüm server action'lar (tahmin kaydetme, lig kurma…)
+    actions.ts              tüm server action'lar (tahmin kaydetme, profil)
     api/auth/[...all]/      Better Auth handler
     api/cron/sync/          football-data senkronizasyonu (cron endpoint)
     maclar/                 matchday bazlı skor tahmini
     siralama/               36 takımlık sürükle-bırak sıralama
     bracket/                kademeli eleme turu seçimi
     puan-durumu/            gerçek lig aşaması tablosu
-    ligler/                 arkadaş ligleri + lig detayı
-    siralamalar/            genel leaderboard
+    takimlar/               takım listesi
+    takim/[id]/             takımın 8 maçında halk ne diyor + sıralama/bracket dağılımı
+    mac/[id]/               maç detayı: tahmin dağılımı + kim ne demiş
+    oyuncu/[id]/            herkese açık tahmin karnesi
+    siralamalar/            klasman
     profil/, kurallar/, giris/, kayit/
   components/               UI bileşenleri
   db/schema.ts              Drizzle şeması
@@ -162,6 +196,7 @@ src/
     auth.ts / auth-client.ts
     football-data.ts        API istemcisi
     scoring.ts              puanlama kuralları (tek kaynak)
+    insights.ts             tahmin dağılımı ve şeffaflık sorguları
     standings.ts            puan durumu hesabı
     sync.ts                 veri çekme + otomatik puanlama
     queries.ts              leaderboard ve sayfa sorguları

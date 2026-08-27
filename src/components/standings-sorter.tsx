@@ -114,7 +114,7 @@ export function StandingsSorter({
     <div className="space-y-4">
       {!locked && signedIn && (
         <div className="flex items-center justify-between gap-3">
-          <p className="text-sm text-white/50">
+          <p className="text-sm text-silver-500">
             Takımları sürükleyerek 1.&nbsp;sıradan {teams.length}.&nbsp;sıraya diz.
           </p>
           <button type="button" onClick={shuffle} className="btn-ghost text-xs">
@@ -124,7 +124,7 @@ export function StandingsSorter({
       )}
 
       {locked && (
-        <div className="card flex items-center gap-2.5 border-amber-accent/25 bg-amber-accent/8 p-3.5 text-sm text-amber-accent">
+        <div className="panel flex items-center gap-2.5 border-gold-400/25 bg-gold-400/8 p-3.5 text-sm text-gold-400">
           <Lock className="h-4 w-4 shrink-0" />
           Lig aşaması başladığı için sıralama tahmini kilitlendi.
           {points != null && ` Bu tahminden ${points} puan aldın.`}
@@ -138,7 +138,7 @@ export function StandingsSorter({
         modifiers={[restrictToVerticalAxis, restrictToParentElement]}
       >
         <SortableContext items={order} strategy={verticalListSortingStrategy}>
-          <ol className="card divide-y divide-white/6 overflow-hidden">
+          <ol className="panel divide-y divide-white/6 overflow-hidden">
             {order.map((id, index) => {
               const team = byId.get(id);
               if (!team) return null;
@@ -159,17 +159,17 @@ export function StandingsSorter({
 
       {!locked && signedIn && (
         <div className="sticky bottom-4 z-30">
-          <div className="card flex items-center justify-between gap-4 border-white/12 bg-night-850/95 p-3 shadow-2xl backdrop-blur-xl">
+          <div className="panel flex items-center justify-between gap-4 border-white/12 bg-night-850/95 p-3 shadow-2xl backdrop-blur-xl">
             <span className="text-sm">
               {feedback ? (
-                <span className={feedback.ok ? "text-lime-accent" : "text-amber-accent"}>
+                <span className={feedback.ok ? "text-pitch-400" : "text-flag-400"}>
                   {feedback.ok && <Check className="mr-1 inline h-4 w-4" />}
                   {feedback.message}
                 </span>
               ) : dirty ? (
-                <span className="text-amber-accent">Kaydedilmemiş değişiklik var</span>
+                <span className="text-gold-400">Kaydedilmemiş değişiklik var</span>
               ) : (
-                <span className="text-white/50">Sıralaman güncel</span>
+                <span className="text-silver-500">Sıralaman güncel</span>
               )}
             </span>
             <button type="button" onClick={save} disabled={pending} className="btn-primary shrink-0">
@@ -203,9 +203,9 @@ function SortableRow({
 
   const zone =
     index < 8
-      ? { label: "Doğrudan son 16", cls: "bg-lime-accent" }
+      ? { label: "Doğrudan son 16", cls: "bg-gold-400" }
       : index < 24
-        ? { label: "Play-off", cls: "bg-star-500" }
+        ? { label: "Play-off", cls: "bg-blue-500" }
         : { label: "Elenir", cls: "bg-white/15" };
 
   return (
@@ -218,12 +218,12 @@ function SortableRow({
       )}
     >
       <span className={cn("h-9 w-1 shrink-0 rounded-full", zone.cls)} title={zone.label} />
-      <span className="w-6 shrink-0 text-center text-sm font-bold tabular-nums text-white/40">
+      <span className="w-6 shrink-0 text-center text-sm font-bold tabular-nums text-silver-500">
         {index + 1}
       </span>
       <TeamCrest team={team} size={26} />
       <span className="min-w-0 flex-1 truncate text-sm font-medium">{team.name}</span>
-      <span className="hidden shrink-0 text-xs text-white/30 sm:block">{team.country}</span>
+      <span className="hidden shrink-0 text-xs text-silver-600 sm:block">{team.country}</span>
 
       {!disabled && (
         <div className="flex shrink-0 items-center gap-1">
@@ -231,7 +231,7 @@ function SortableRow({
             type="button"
             aria-label="Yukarı taşı"
             onClick={() => onMove(id, -1)}
-            className="grid h-7 w-7 place-items-center rounded-lg border border-white/10 text-xs text-white/50 hover:bg-white/8 sm:hidden"
+            className="grid h-7 w-7 place-items-center rounded-lg border border-white/10 text-xs text-silver-500 hover:bg-white/8 sm:hidden"
           >
             ↑
           </button>
@@ -239,14 +239,14 @@ function SortableRow({
             type="button"
             aria-label="Aşağı taşı"
             onClick={() => onMove(id, 1)}
-            className="grid h-7 w-7 place-items-center rounded-lg border border-white/10 text-xs text-white/50 hover:bg-white/8 sm:hidden"
+            className="grid h-7 w-7 place-items-center rounded-lg border border-white/10 text-xs text-silver-500 hover:bg-white/8 sm:hidden"
           >
             ↓
           </button>
           <button
             type="button"
             aria-label="Sürükle"
-            className="hidden cursor-grab touch-none text-white/25 hover:text-white/60 active:cursor-grabbing sm:block"
+            className="hidden cursor-grab touch-none text-silver-600 hover:text-silver-400 active:cursor-grabbing sm:block"
             {...attributes}
             {...listeners}
           >

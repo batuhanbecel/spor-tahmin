@@ -2,8 +2,6 @@ import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import {
   bracketPredictions,
-  leagueMembers,
-  leagues,
   matchPredictions,
   matches,
   standingsPredictions,
@@ -86,15 +84,6 @@ export async function getGlobalLeaderboard(limit = 200): Promise<LeaderboardRow[
   return mapRows(res.rows as unknown as RawRow[]);
 }
 
-export async function getLeagueLeaderboard(leagueId: string): Promise<LeaderboardRow[]> {
-  const res = await db.execute(
-    sql`${leaderboardSelect}
-        join league_members lm on lm.user_id = u.id and lm.league_id = ${leagueId}
-        order by total desc, exact_count desc, prediction_count desc, u.created_at asc`,
-  );
-  return mapRows(res.rows as unknown as RawRow[]);
-}
-
 export async function getAllTeams() {
   return db.select().from(teams).orderBy(asc(teams.name));
 }
@@ -145,28 +134,6 @@ export async function getBracketPrediction(userId: string) {
     .select()
     .from(bracketPredictions)
     .where(eq(bracketPredictions.userId, userId));
-  return row ?? null;
-}
-
-export async function getUserLeagues(userId: string) {
-  return db
-    .select({
-      id: leagues.id,
-      name: leagues.name,
-      slug: leagues.slug,
-      code: leagues.code,
-      ownerId: leagues.ownerId,
-      createdAt: leagues.createdAt,
-      memberCount: sql<number>`(select count(*) from league_members lm2 where lm2.league_id = ${leagues.id})`,
-    })
-    .from(leagues)
-    .innerJoin(leagueMembers, eq(leagueMembers.leagueId, leagues.id))
-    .where(eq(leagueMembers.userId, userId))
-    .orderBy(desc(leagues.createdAt));
-}
-
-export async function getLeagueBySlug(slug: string) {
-  const [row] = await db.select().from(leagues).where(eq(leagues.slug, slug));
   return row ?? null;
 }
 

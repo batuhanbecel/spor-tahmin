@@ -75,8 +75,8 @@ export default async function MaclarPage({
   return (
     <div className="space-y-6">
       <header className="space-y-1">
-        <h1 className="text-2xl font-bold sm:text-3xl">Maçlar</h1>
-        <p className="text-sm text-white/50">
+        <h1 className="display text-3xl text-silver-100 sm:text-4xl">Maçlar</h1>
+        <p className="text-sm text-silver-500">
           Her maç için skor tahmini gir. Tahminler maçın başlama saatinde kilitlenir.
         </p>
       </header>
@@ -89,8 +89,8 @@ export default async function MaclarPage({
             className={cn(
               "rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors",
               !stageParam && matchday === md
-                ? "border-star-500 bg-star-500 text-white"
-                : "border-white/12 bg-white/5 text-white/65 hover:bg-white/10",
+                ? "border-blue-500 bg-blue-500 text-white"
+                : "border-white/12 bg-white/5 text-silver-300 hover:bg-white/10",
             )}
           >
             {md}. hafta
@@ -104,8 +104,8 @@ export default async function MaclarPage({
             className={cn(
               "rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors",
               stageParam === s
-                ? "border-star-500 bg-star-500 text-white"
-                : "border-white/12 bg-white/5 text-white/65 hover:bg-white/10",
+                ? "border-blue-500 bg-blue-500 text-white"
+                : "border-white/12 bg-white/5 text-silver-300 hover:bg-white/10",
             )}
           >
             {STAGE_LABELS[s]}

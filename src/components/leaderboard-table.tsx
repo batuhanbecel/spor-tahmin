@@ -1,5 +1,7 @@
 import type { LeaderboardRow } from "@/lib/queries";
-import { cn, displayName } from "@/lib/utils";
+import { UserChip } from "./avatar";
+import { Star } from "./starball";
+import { cn } from "@/lib/utils";
 
 export function LeaderboardTable({
   rows,
@@ -10,81 +12,67 @@ export function LeaderboardTable({
 }) {
   if (!rows.length) {
     return (
-      <div className="card p-10 text-center text-sm text-white/50">
-        Henüz sıralamada kimse yok. İlk tahminini yapan ilk sıraya geçer.
+      <div className="panel p-12 text-center text-sm text-silver-500">
+        Henüz klasmanda kimse yok. İlk tahminini yapan zirveye çıkar.
       </div>
     );
   }
 
   return (
-    <div className="card overflow-hidden">
+    <div className="panel overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[560px] text-sm">
+        <table className="w-full min-w-[600px] text-sm">
           <thead>
-            <tr className="border-b border-white/8 text-left text-[11px] uppercase tracking-wider text-white/40">
-              <th className="w-12 px-3 py-3 text-center">#</th>
-              <th className="px-3 py-3">Oyuncu</th>
-              <th className="px-3 py-3 text-right">Maç</th>
-              <th className="px-3 py-3 text-right">Sıralama</th>
-              <th className="px-3 py-3 text-right">Bracket</th>
-              <th className="px-3 py-3 text-right">Tam skor</th>
-              <th className="px-3 py-3 text-right font-bold text-white/60">Toplam</th>
+            <tr className="border-b border-white/8 text-left">
+              <th className="eyebrow w-14 px-3 py-3 text-center">#</th>
+              <th className="eyebrow px-3 py-3">Oyuncu</th>
+              <th className="eyebrow px-3 py-3 text-right">Maç</th>
+              <th className="eyebrow px-3 py-3 text-right">Sıralama</th>
+              <th className="eyebrow px-3 py-3 text-right">Bracket</th>
+              <th className="eyebrow px-3 py-3 text-right">Tam</th>
+              <th className="eyebrow px-3 py-3 text-right">Toplam</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/5">
+          <tbody className="divide-y divide-white/6">
             {rows.map((r) => {
               const me = r.userId === currentUserId;
+              const podium = r.rank <= 3;
               return (
                 <tr
                   key={r.userId}
                   className={cn(
                     "transition-colors hover:bg-white/4",
-                    me && "bg-star-500/10 hover:bg-star-500/14",
+                    me && "bg-blue-600/12 hover:bg-blue-600/16",
                   )}
                 >
                   <td className="px-3 py-3 text-center">
                     <span
                       className={cn(
-                        "inline-grid h-7 w-7 place-items-center rounded-lg text-xs font-bold tabular-nums",
+                        "num inline-grid h-7 w-8 place-items-center rounded-md text-xs font-bold",
                         r.rank === 1
-                          ? "bg-lime-accent text-night-950"
+                          ? "bg-gold-400 text-night-1000"
                           : r.rank === 2
-                            ? "bg-white/25 text-white"
+                            ? "bg-silver-300 text-night-1000"
                             : r.rank === 3
-                              ? "bg-amber-accent/70 text-night-950"
-                              : "text-white/40",
+                              ? "bg-[#c88b52] text-night-1000"
+                              : "text-silver-600",
                       )}
                     >
                       {r.rank}
                     </span>
                   </td>
                   <td className="px-3 py-3">
-                    <div className="flex items-center gap-2.5">
-                      {r.image ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={r.image} alt="" className="h-7 w-7 rounded-lg object-cover" />
-                      ) : (
-                        <span className="grid h-7 w-7 place-items-center rounded-lg bg-white/8 text-xs font-bold text-white/50">
-                          {displayName(r).slice(0, 1).toLocaleUpperCase("tr")}
-                        </span>
-                      )}
-                      <span className="font-medium">{displayName(r)}</span>
-                      {me && <span className="chip text-[10px]">sen</span>}
+                    <div className="flex items-center gap-2">
+                      <UserChip user={r} size={28} />
+                      {podium && <Star size={11} tone={r.rank === 1 ? "gold" : "silver"} />}
+                      {me && <span className="chip">sen</span>}
                     </div>
                   </td>
-                  <td className="px-3 py-3 text-right tabular-nums text-white/60">
-                    {r.matchPoints}
-                  </td>
-                  <td className="px-3 py-3 text-right tabular-nums text-white/60">
-                    {r.standingsPoints}
-                  </td>
-                  <td className="px-3 py-3 text-right tabular-nums text-white/60">
-                    {r.bracketPoints}
-                  </td>
-                  <td className="px-3 py-3 text-right tabular-nums text-white/40">
-                    {r.exactCount}
-                  </td>
-                  <td className="px-3 py-3 text-right text-base font-bold tabular-nums">
+                  <td className="num px-3 py-3 text-right text-silver-400">{r.matchPoints}</td>
+                  <td className="num px-3 py-3 text-right text-silver-400">{r.standingsPoints}</td>
+                  <td className="num px-3 py-3 text-right text-silver-400">{r.bracketPoints}</td>
+                  <td className="num px-3 py-3 text-right text-silver-600">{r.exactCount}</td>
+                  <td className="num display px-3 py-3 text-right text-lg text-silver-100">
                     {r.total}
                   </td>
                 </tr>

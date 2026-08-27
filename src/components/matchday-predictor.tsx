@@ -93,7 +93,7 @@ export function MatchdayPredictor({
 
   if (!matches.length) {
     return (
-      <div className="card p-10 text-center text-sm text-white/50">
+      <div className="panel p-10 text-center text-sm text-silver-500">
         Bu hafta için henüz maç yok. Kura sonrası fikstür otomatik yüklenecek.
       </div>
     );
@@ -102,8 +102,8 @@ export function MatchdayPredictor({
   return (
     <div className="space-y-6">
       {!signedIn && (
-        <div className="card flex flex-col gap-3 border-star-500/25 bg-star-500/8 p-4 text-sm sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-white/80">
+        <div className="panel flex flex-col gap-3 border-blue-500/25 bg-blue-500/8 p-4 text-sm sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-silver-200">
             Tahminlerini kaydetmek için hesabın olması gerekiyor.
           </p>
           <div className="flex gap-2">
@@ -119,10 +119,10 @@ export function MatchdayPredictor({
 
       {grouped.map(([day, dayMatches]) => (
         <section key={day} className="space-y-2">
-          <h3 className="px-1 text-xs font-semibold uppercase tracking-wider text-white/40">
+          <h3 className="px-1 text-xs font-semibold uppercase tracking-wider text-silver-500">
             {day}
           </h3>
-          <div className="card divide-y divide-white/6 overflow-hidden">
+          <div className="panel divide-y divide-white/6 overflow-hidden">
             {dayMatches.map((m) => {
               const locked = new Date(m.utcDate).getTime() <= now || m.status === "FINISHED";
               const finished = m.status === "FINISHED";
@@ -142,7 +142,7 @@ export function MatchdayPredictor({
                     {finished ? (
                       <div className="flex items-center gap-1.5">
                         <ScoreBox value={m.homeGoals ?? 0} tone="result" />
-                        <span className="text-white/25">:</span>
+                        <span className="text-silver-600">:</span>
                         <ScoreBox value={m.awayGoals ?? 0} tone="result" />
                       </div>
                     ) : (
@@ -153,7 +153,7 @@ export function MatchdayPredictor({
                           onChange={(v) => set(m.id, "h", v)}
                           label={`${m.home?.name ?? "Ev sahibi"} gol tahmini`}
                         />
-                        <span className="text-white/25">:</span>
+                        <span className="text-silver-600">:</span>
                         <ScoreInput
                           value={d.a}
                           disabled={locked || !signedIn}
@@ -162,7 +162,7 @@ export function MatchdayPredictor({
                         />
                       </div>
                     )}
-                    <span className="flex items-center gap-1 text-[10px] font-medium text-white/35">
+                    <span className="flex items-center gap-1 text-[10px] font-medium text-silver-600">
                       {locked && !finished && <Lock className="h-2.5 w-2.5" />}
                       {finished
                         ? STATUS_LABELS[m.status]
@@ -186,10 +186,10 @@ export function MatchdayPredictor({
                           "chip",
                           m.prediction.points != null &&
                             (m.prediction.points >= 5
-                              ? "border-lime-accent/40 bg-lime-accent/12 text-lime-accent"
+                              ? "border-gold-400/40 bg-gold-400/12 text-gold-400"
                               : m.prediction.points > 0
-                                ? "border-star-400/40 bg-star-500/12 text-star-400"
-                                : "border-white/10 text-white/40"),
+                                ? "border-blue-400/40 bg-blue-500/12 text-blue-400"
+                                : "border-white/10 text-silver-500"),
                         )}
                       >
                         Tahminin: {m.prediction.homeGoals}-{m.prediction.awayGoals}
@@ -206,15 +206,15 @@ export function MatchdayPredictor({
 
       {signedIn && openCount > 0 && (
         <div className="sticky bottom-4 z-30">
-          <div className="card flex items-center justify-between gap-4 border-white/12 bg-night-850/95 p-3 shadow-2xl backdrop-blur-xl">
+          <div className="panel flex items-center justify-between gap-4 border-white/12 bg-night-850/95 p-3 shadow-2xl backdrop-blur-xl">
             <div className="min-w-0 text-sm">
               {feedback ? (
-                <span className={feedback.ok ? "text-lime-accent" : "text-amber-accent"}>
+                <span className={feedback.ok ? "text-pitch-400" : "text-flag-400"}>
                   {feedback.ok && <Check className="mr-1 inline h-4 w-4" />}
                   {feedback.message}
                 </span>
               ) : (
-                <span className="text-white/55">
+                <span className="text-silver-400">
                   {filledCount}/{matches.length} maç dolduruldu
                 </span>
               )}
@@ -252,7 +252,7 @@ function ScoreInput({
       onChange={(e) => onChange(e.target.value)}
       className={cn(
         "h-11 w-11 rounded-xl border border-white/12 bg-night-900/80 text-center text-base font-bold tabular-nums",
-        "focus:border-star-500 focus:outline-none focus:ring-2 focus:ring-star-500/25",
+        "focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/25",
         "disabled:cursor-not-allowed disabled:opacity-40",
       )}
     />

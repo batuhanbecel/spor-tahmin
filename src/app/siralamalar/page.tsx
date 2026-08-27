@@ -12,8 +12,8 @@ export default async function SiralamalarPage() {
   return (
     <div className="space-y-6">
       <header className="space-y-1">
-        <h1 className="text-2xl font-bold sm:text-3xl">Genel sıralama</h1>
-        <p className="text-sm text-white/50">
+        <h1 className="display text-3xl text-silver-100 sm:text-4xl">Genel sıralama</h1>
+        <p className="text-sm text-silver-500">
           Maç tahminleri, lig aşaması sıralaması ve bracket puanlarının toplamı.
         </p>
       </header>

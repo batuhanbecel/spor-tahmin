@@ -47,9 +47,9 @@ export default async function BracketPage() {
 
   if (!sortable.length) {
     return (
-      <div className="card mx-auto max-w-lg p-10 text-center">
-        <h2 className="text-lg font-semibold">Takımlar henüz yüklenmedi</h2>
-        <p className="mt-2 text-sm text-white/50">
+      <div className="panel mx-auto max-w-lg p-10 text-center">
+        <h2 className="display text-lg text-silver-100">Takımlar henüz yüklenmedi</h2>
+        <p className="mt-2 text-sm text-silver-500">
           Kura sonrası fikstür otomatik çekildiğinde bracket açılacak.
         </p>
       </div>
@@ -59,21 +59,21 @@ export default async function BracketPage() {
   return (
     <div className="space-y-6">
       <header className="space-y-1">
-        <h1 className="text-2xl font-bold sm:text-3xl">Eleme turu bracket&apos;i</h1>
-        <p className="text-sm text-white/50">
+        <h1 className="display text-3xl text-silver-100 sm:text-4xl">Eleme turu bracket&apos;i</h1>
+        <p className="text-sm text-silver-500">
           Turdan tura ilerleyecek takımları seç. Her turda bir önceki turda seçtiğin takımlar
           arasından ilerlersin.
         </p>
         {firstKo && !locked && (
-          <p className="text-xs text-amber-accent">
+          <p className="text-xs text-gold-400">
             Son gönderim: {formatDateTime(firstKo.utcDate)} (play-off ilk maçı)
           </p>
         )}
       </header>
 
       {!session?.user && (
-        <div className="card flex flex-col gap-3 border-star-500/25 bg-star-500/8 p-4 text-sm sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-white/80">Bracket&apos;ini kaydetmek için giriş yapmalısın.</p>
+        <div className="panel flex flex-col gap-3 border-blue-500/25 bg-blue-500/8 p-4 text-sm sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-silver-200">Bracket&apos;ini kaydetmek için giriş yapmalısın.</p>
           <div className="flex gap-2">
             <Link href="/kayit" className="btn-primary">
               Ücretsiz katıl

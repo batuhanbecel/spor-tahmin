@@ -8,7 +8,6 @@ import {
   jsonb,
   uniqueIndex,
   index,
-  primaryKey,
 } from "drizzle-orm/pg-core";
 
 /* ------------------------------------------------------------------ */
@@ -185,36 +184,6 @@ export const bracketPredictions = pgTable("bracket_predictions", {
 });
 
 /* ------------------------------------------------------------------ */
-/*  Arkadaş ligleri                                                    */
-/* ------------------------------------------------------------------ */
-
-export const leagues = pgTable("leagues", {
-  id: text("id").primaryKey(),
-  name: text("name").notNull(),
-  slug: text("slug").notNull().unique(),
-  /** Davet kodu */
-  code: text("code").notNull().unique(),
-  ownerId: text("owner_id")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
-
-export const leagueMembers = pgTable(
-  "league_members",
-  {
-    leagueId: text("league_id")
-      .notNull()
-      .references(() => leagues.id, { onDelete: "cascade" }),
-    userId: text("user_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
-    joinedAt: timestamp("joined_at", { withTimezone: true }).notNull().defaultNow(),
-  },
-  (t) => [primaryKey({ columns: [t.leagueId, t.userId] })],
-);
-
-/* ------------------------------------------------------------------ */
 /*  Anahtar/değer ayarlar (son senkron zamanı vb.)                     */
 /* ------------------------------------------------------------------ */
 
@@ -227,5 +196,4 @@ export const settings = pgTable("settings", {
 export type Team = typeof teams.$inferSelect;
 export type Match = typeof matches.$inferSelect;
 export type MatchPrediction = typeof matchPredictions.$inferSelect;
-export type League = typeof leagues.$inferSelect;
 export type User = typeof user.$inferSelect;

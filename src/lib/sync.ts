@@ -8,7 +8,13 @@ import {
   bracketPredictions,
   teams,
 } from "@/db/schema";
-import { fetchMatches, fetchTeams } from "./football-data";
+import {
+  fetchCompetition,
+  fetchMatches,
+  fetchTeams,
+  SEASON,
+  type FdAttempt,
+} from "./football-data";
 import { scoreBracket, scoreMatch, scoreStandings } from "./scoring";
 import { computeLeagueTable } from "./standings";
 
@@ -19,11 +25,24 @@ export type SyncReport = {
   standingsScored: number;
   bracketScored: number;
   at: string;
+  /** API'ye yapılan her çağrının sonucu — boş dönerse sebebini burada gör. */
+  diagnostics: {
+    season: string | null;
+    currentSeason?: { startDate: string; endDate: string; currentMatchday: number | null };
+    attempts: FdAttempt[];
+    note?: string;
+  };
 };
 
 /** football-data'dan takımları ve fikstürü çekip veritabanına yazar. */
 export async function syncCompetition(): Promise<SyncReport> {
-  const [teamRes, matchRes] = await Promise.all([fetchTeams(), fetchMatches()]);
+  const attempts: FdAttempt[] = [];
+
+  const competition = await fetchCompetition(attempts);
+  const [teamRes, matchRes] = await Promise.all([
+    fetchTeams(attempts),
+    fetchMatches(attempts),
+  ]);
 
   const teamRows = teamRes.teams.map((t) => ({
     id: t.id,
@@ -125,6 +144,22 @@ export async function syncCompetition(): Promise<SyncReport> {
       set: { value: sql`excluded.value`, updatedAt: new Date() },
     });
 
+  let note: string | undefined;
+  if (matchRows.length === 0) {
+    const restricted = attempts.some((a) => a.status === 403);
+    const rateLimited = attempts.some((a) => a.status === 429);
+    if (rateLimited) {
+      note =
+        "API dakika limiti aşıldı (ücretsiz katman: 10 istek/dk). Bir dakika bekleyip tekrar dene.";
+    } else if (restricted) {
+      note =
+        "API 403 döndü. Ücretsiz katman yalnızca güncel sezonu verir — FD_SEASON değişkenini kaldırmayı dene.";
+    } else {
+      note =
+        "API başarılı ama fikstür boş. Kura sonrası maçların football-data'ya düşmesi birkaç saat sürebilir.";
+    }
+  }
+
   return {
     teams: teamRows.length + extra.size,
     matches: matchRows.length,
@@ -132,6 +167,18 @@ export async function syncCompetition(): Promise<SyncReport> {
     standingsScored,
     bracketScored,
     at,
+    diagnostics: {
+      season: SEASON,
+      currentSeason: competition?.currentSeason
+        ? {
+            startDate: competition.currentSeason.startDate,
+            endDate: competition.currentSeason.endDate,
+            currentMatchday: competition.currentSeason.currentMatchday,
+          }
+        : undefined,
+      attempts,
+      note,
+    },
   };
 }
 

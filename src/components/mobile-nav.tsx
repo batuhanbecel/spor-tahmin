@@ -25,7 +25,7 @@ export function MobileNav({
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-50 bg-night-950/95 backdrop-blur-lg lg:hidden">
+        <div className="fixed inset-0 z-50 bg-night-1000/95 backdrop-blur-lg lg:hidden">
           <div className="flex h-16 items-center justify-between px-4">
             <span className="text-sm font-bold">Menü</span>
             <button
@@ -43,7 +43,7 @@ export function MobileNav({
                 key={l.href}
                 href={l.href}
                 onClick={() => setOpen(false)}
-                className="rounded-xl px-4 py-3.5 text-base font-medium text-white/80 hover:bg-white/6"
+                className="rounded-xl px-4 py-3.5 text-base font-medium text-silver-200 hover:bg-white/6"
               >
                 {l.label}
               </Link>
@@ -52,7 +52,7 @@ export function MobileNav({
               <Link
                 href="/giris"
                 onClick={() => setOpen(false)}
-                className="mt-2 rounded-xl px-4 py-3.5 text-base font-medium text-star-400 hover:bg-white/6"
+                className="mt-2 rounded-xl px-4 py-3.5 text-base font-medium text-blue-400 hover:bg-white/6"
               >
                 Giriş yap
               </Link>

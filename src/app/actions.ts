@@ -1,21 +1,17 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { and, eq, inArray, sql } from "drizzle-orm";
-import { nanoid } from "nanoid";
+import { eq, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import {
   bracketPredictions,
-  leagueMembers,
-  leagues,
   matchPredictions,
   matches,
   standingsPredictions,
   user,
 } from "@/db/schema";
 import { requireUser } from "@/lib/session";
-import { slugify } from "@/lib/utils";
 
 export type ActionState = { ok: boolean; message: string };
 
@@ -168,66 +164,6 @@ export async function saveBracketPrediction(
 
   revalidatePath("/bracket");
   return { ok: true, message: "Bracket tahminin kaydedildi." };
-}
-
-/* ------------------------------------------------------------------ */
-/*  Arkadaş ligleri                                                    */
-/* ------------------------------------------------------------------ */
-
-export async function createLeague(name: string): Promise<ActionState & { slug?: string }> {
-  const me = await requireUser();
-  const clean = name.trim();
-  if (clean.length < 3 || clean.length > 40) {
-    return { ok: false, message: "Lig adı 3-40 karakter olmalı." };
-  }
-
-  const base = slugify(clean) || "lig";
-  let slug = base;
-  for (let i = 0; i < 5; i++) {
-    const [exists] = await db.select({ id: leagues.id }).from(leagues).where(eq(leagues.slug, slug));
-    if (!exists) break;
-    slug = `${base}-${nanoid(4).toLowerCase()}`;
-  }
-
-  const id = nanoid(16);
-  const code = nanoid(7).toUpperCase().replace(/[^A-Z0-9]/g, "X");
-
-  await db.insert(leagues).values({ id, name: clean, slug, code, ownerId: me.id });
-  await db.insert(leagueMembers).values({ leagueId: id, userId: me.id }).onConflictDoNothing();
-
-  revalidatePath("/ligler");
-  return { ok: true, message: "Lig kuruldu.", slug };
-}
-
-export async function joinLeague(code: string): Promise<ActionState & { slug?: string }> {
-  const me = await requireUser();
-  const clean = code.trim().toUpperCase();
-  if (!clean) return { ok: false, message: "Davet kodu gerekli." };
-
-  const [league] = await db.select().from(leagues).where(eq(leagues.code, clean));
-  if (!league) return { ok: false, message: "Bu koda ait bir lig bulunamadı." };
-
-  await db
-    .insert(leagueMembers)
-    .values({ leagueId: league.id, userId: me.id })
-    .onConflictDoNothing();
-
-  revalidatePath("/ligler");
-  return { ok: true, message: `"${league.name}" ligine katıldın.`, slug: league.slug };
-}
-
-export async function leaveLeague(leagueId: string): Promise<ActionState> {
-  const me = await requireUser();
-  const [league] = await db.select().from(leagues).where(eq(leagues.id, leagueId));
-  if (!league) return { ok: false, message: "Lig bulunamadı." };
-  if (league.ownerId === me.id) {
-    return { ok: false, message: "Lig kurucusu ligden ayrılamaz." };
-  }
-  await db
-    .delete(leagueMembers)
-    .where(and(eq(leagueMembers.leagueId, leagueId), eq(leagueMembers.userId, me.id)));
-  revalidatePath("/ligler");
-  return { ok: true, message: "Ligden ayrıldın." };
 }
 
 /* ------------------------------------------------------------------ */
