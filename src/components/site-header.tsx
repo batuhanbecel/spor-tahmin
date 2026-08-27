@@ -20,7 +20,7 @@ export async function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/8 bg-night-1000/85 backdrop-blur-xl">
-      <div className="mx-auto flex h-[64px] w-full max-w-[--shell] items-center gap-5 px-4 sm:px-6">
+      <div className="mx-auto flex h-[64px] w-full max-w-shell items-center gap-5 px-4 sm:px-6">
         <Link href="/" className="group flex shrink-0 items-center gap-2.5">
           <Starball size={30} className="transition-transform group-hover:rotate-[22deg]" />
           <span className="hidden leading-none sm:block">

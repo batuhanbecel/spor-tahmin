@@ -36,11 +36,16 @@
   --font-sans: var(--font-barlow), Barlow, ui-sans-serif, system-ui, sans-serif;
 
   --radius-card: 0.875rem;
+  --container-shell: 1180px;
 }
 
 :root {
   color-scheme: dark;
-  --shell: 1180px;
+}
+
+/* Hicbir sey yatay tasma yaratmasin; clip sticky basligi bozmaz */
+html {
+  overflow-x: clip;
 }
 
 html,
@@ -86,11 +91,11 @@ body {
 @layer components {
   /* ---------------------------------------------------------- yüzeyler */
   .panel {
-    @apply rounded-[--radius-card] border border-white/8 bg-night-850/70 backdrop-blur-sm;
+    @apply rounded-card border border-white/8 bg-night-850/70 backdrop-blur-sm;
   }
 
   .panel-raised {
-    @apply rounded-[--radius-card] border border-white/10 bg-night-800/80 backdrop-blur;
+    @apply rounded-card border border-white/10 bg-night-800/80 backdrop-blur;
     box-shadow:
       0 1px 0 0 rgba(255, 255, 255, 0.05) inset,
       0 24px 60px -32px rgba(0, 0, 0, 0.9);

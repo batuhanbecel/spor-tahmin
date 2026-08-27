@@ -67,10 +67,12 @@ export default async function MacPage({ params }: { params: Promise<{ id: string
       <section className="panel-raised grid grid-cols-[1fr_auto_1fr] items-center gap-4 p-6 sm:gap-8 sm:p-10">
         <Link
           href={home ? `/takim/${home.id}` : "#"}
-          className="flex flex-col items-center gap-3 text-center transition-opacity hover:opacity-80"
+          className="flex min-w-0 flex-col items-center gap-3 text-center transition-opacity hover:opacity-80"
         >
           <TeamCrest team={home} size={72} />
-          <span className="display text-lg leading-tight text-silver-100">{homeLabel}</span>
+          <span className="display w-full break-words text-base leading-tight text-silver-100 sm:text-lg">
+            {homeLabel}
+          </span>
         </Link>
 
         <div className="text-center">
@@ -90,10 +92,12 @@ export default async function MacPage({ params }: { params: Promise<{ id: string
 
         <Link
           href={away ? `/takim/${away.id}` : "#"}
-          className="flex flex-col items-center gap-3 text-center transition-opacity hover:opacity-80"
+          className="flex min-w-0 flex-col items-center gap-3 text-center transition-opacity hover:opacity-80"
         >
           <TeamCrest team={away} size={72} />
-          <span className="display text-lg leading-tight text-silver-100">{awayLabel}</span>
+          <span className="display w-full break-words text-base leading-tight text-silver-100 sm:text-lg">
+            {awayLabel}
+          </span>
         </Link>
       </section>
 

@@ -52,7 +52,7 @@ export default function RootLayout({
       <body className="flex min-h-screen flex-col font-sans antialiased">
         <div className="sky" aria-hidden="true" />
         <SiteHeader />
-        <main className="mx-auto w-full max-w-[--shell] flex-1 px-4 pb-24 pt-6 sm:px-6">
+        <main className="mx-auto w-full max-w-shell flex-1 px-4 pb-24 pt-6 sm:px-6">
           {children}
         </main>
         <SiteFooter />
