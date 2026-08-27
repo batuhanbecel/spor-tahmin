@@ -62,7 +62,7 @@ export default async function TakimPage({ params }: { params: Promise<{ id: stri
         <div className="relative flex items-center gap-4">
           <TeamCrest team={team} size={64} />
           <div className="min-w-0">
-            <h1 className="display truncate text-3xl text-silver-100 sm:text-4xl">{team.name}</h1>
+            <h1 className="display break-words text-xl leading-tight text-silver-100 sm:text-4xl">{team.name}</h1>
             <p className="mt-0.5 text-sm text-silver-500">
               {team.country}
               {team.tla && <span className="ml-2 chip">{team.tla}</span>}
@@ -127,14 +127,19 @@ export default async function TakimPage({ params }: { params: Promise<{ id: stri
                       {opp?.shortName || opp?.name || "Belirsiz"}
                     </span>
 
+                    {/* mobilde satiri kir: tarih/skor alt satira insin */}
+                    <span className="basis-full sm:hidden" aria-hidden="true" />
+
                     {m.status === "FINISHED" ? (
-                      <span className="num rounded-md bg-white/8 px-2 py-1 text-sm font-bold text-silver-100">
+                      <span className="num shrink-0 rounded-md bg-white/8 px-2 py-1 text-sm font-bold text-silver-100">
                         {m.homeGoals}-{m.awayGoals}
                       </span>
                     ) : (
-                      <span className="num text-xs text-silver-500">{formatDateTime(m.utcDate)}</span>
+                      <span className="num shrink-0 text-xs text-silver-500">
+                        {formatDateTime(m.utcDate)}
+                      </span>
                     )}
-                    <ArrowRight className="h-4 w-4 shrink-0 text-silver-600 transition-transform group-hover:translate-x-0.5 group-hover:text-silver-300" />
+                    <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-silver-600 transition-transform group-hover:translate-x-0.5 group-hover:text-silver-300 sm:ml-0" />
                   </div>
 
                   {total > 0 ? (
