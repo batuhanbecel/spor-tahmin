@@ -21,7 +21,28 @@
 
 ---
 
-## 1. Kurulum (yerel)
+## 0. Hızlı kurulum — tek komut
+
+Zip'i açıp klasöre gir, sonra:
+
+```bash
+chmod +x setup.sh && ./setup.sh
+```
+
+Script sırasıyla: bağımlılıkları kurar → `.env.local` üretir → Neon şemasını uygular →
+GitHub'da repo açıp push'lar → Vercel projesini kurar ve GitHub'a bağlar →
+env değişkenlerini yazar → production'a deploy eder → `spor.tavukciftligi.lol`
+subdomain'ini bağlar → fikstürü çeker.
+
+İki yerde tarayıcı isteyecek: Vercel girişi ve (varsa) GitHub yetkilendirmesi.
+Yarıda kalırsa aynı komutu tekrar çalıştır — kaldığı yerden devam eder.
+
+**Ön koşul:** Node.js 20+, git. `gh` CLI kuruluysa repoyu da kendi açar
+(`brew install gh && gh auth login`); değilse `github.com/new`'dan boş repo açmanı ister.
+
+---
+
+## 1. Kurulum (elle, adım adım)
 
 ```bash
 npm install
