@@ -44,7 +44,11 @@ function SocialButtons({
           disabled={busy !== null}
           onClick={() => {
             setBusy("discord");
-            signIn.social({ provider: "discord", callbackURL: "/maclar" });
+            signIn.social({
+              provider: "discord",
+              callbackURL: "/maclar",
+              errorCallbackURL: "/giris",
+            });
           }}
           className="btn w-full bg-[#5865F2] text-white hover:bg-[#4752c4] active:translate-y-px"
         >
@@ -58,7 +62,11 @@ function SocialButtons({
           disabled={busy !== null}
           onClick={() => {
             setBusy("google");
-            signIn.social({ provider: "google", callbackURL: "/maclar" });
+            signIn.social({
+              provider: "google",
+              callbackURL: "/maclar",
+              errorCallbackURL: "/giris",
+            });
           }}
           className="btn-ghost w-full"
         >

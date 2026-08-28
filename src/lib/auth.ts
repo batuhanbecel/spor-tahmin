@@ -29,14 +29,30 @@ export const auth = betterAuth({
     minPasswordLength: 8,
     autoSignIn: true,
   },
+  /**
+   * Aynı e-postayla hem e-posta/şifre hem sosyal giriş kullanılabilsin.
+   *
+   * Better Auth varsayılanı `requireLocalEmailVerified: true`. Bizde e-posta
+   * doğrulama akışı yok, yani her hesap emailVerified=false. Bu ayar olmadan
+   * mevcut bir e-posta hesabı varken Discord'la girmeye çalışmak sessizce
+   * "account not linked" hatasına düşüyordu.
+   */
+  account: {
+    accountLinking: {
+      enabled: true,
+      trustedProviders: ["discord", "google"],
+      requireLocalEmailVerified: false,
+    },
+  },
   socialProviders: {
     ...(hasDiscord
       ? {
           discord: {
             clientId: process.env.DISCORD_CLIENT_ID as string,
             clientSecret: process.env.DISCORD_CLIENT_SECRET as string,
-            // Discord avatarı ve global ismi için
-            scope: ["identify", "email"],
+            // scope varsayılanı zaten ["identify","email"] ve üzerine eklenir —
+            // burada tekrar vermek mükerrer istek üretiyordu.
+            prompt: "consent",
           },
         }
       : {}),

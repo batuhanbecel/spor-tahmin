@@ -1,15 +1,22 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { SignInForm } from "@/components/auth-forms";
+import { AuthError } from "@/components/auth-error";
 import { Starball } from "@/components/starball";
 import { hasDiscord, hasGoogle } from "@/lib/auth";
 import { getSession } from "@/lib/session";
 
 export const metadata: Metadata = { title: "Giriş" };
 
-export default async function GirisPage() {
+export default async function GirisPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
   const session = await getSession();
   if (session?.user) redirect("/maclar");
+
+  const { error } = await searchParams;
 
   return (
     <div className="mx-auto max-w-md py-12">
@@ -20,6 +27,7 @@ export default async function GirisPage() {
           Tahminlerine kaldığın yerden devam et.
         </p>
         <div className="relative">
+          <AuthError code={error} />
           <SignInForm googleEnabled={hasGoogle} discordEnabled={hasDiscord} />
         </div>
       </div>
