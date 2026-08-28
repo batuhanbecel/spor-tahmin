@@ -38,6 +38,14 @@ export const metadata: Metadata = {
       "Maç skorlarını tahmin et, 36 takımlık tabloyu sırala, bracket'ini kur. Kimin ne dediğini gör.",
   },
   robots: { index: true, follow: true },
+  /**
+   * Marka tek dosyadan yönetilir: public/logo.svg
+   * Header, footer ve favicon üçü de bunu okur — değiştirmen yeterli.
+   */
+  icons: {
+    icon: [{ url: "/logo.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/apple-icon.png" }],
+  },
 };
 
 export const viewport: Viewport = {

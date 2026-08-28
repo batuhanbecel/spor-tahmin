@@ -2,15 +2,14 @@ import { Starball } from "./starball";
 import { cn } from "@/lib/utils";
 
 /**
- * Site markası.
+ * Site markası — TEK KAYNAK: public/logo.svg
  *
- * NEXT_PUBLIC_BRAND_LOGO tanımlıysa o görsel kullanılır (public/ altındaki bir
- * dosya yolu ya da tam URL). Tanımlı değilse varsayılan yıldız-top çizilir.
+ * Header, footer ve favicon (layout.tsx içindeki metadata.icons) hepsi aynı
+ * dosyayı okur. Logoyu değiştirmek için sadece public/logo.svg dosyasını
+ * değiştir; başka hiçbir yere dokunmana gerek yok.
  *
- * Kendi logonu koymak için:
- *   1. Dosyayı public/logo.svg (veya .png) olarak ekle
- *   2. NEXT_PUBLIC_BRAND_LOGO="/logo.svg" ortam değişkenini tanımla
- *   3. Favicon için src/app/icon.svg ve src/app/favicon.ico dosyalarını değiştir
+ * Farklı bir yol ya da uzantı istersen NEXT_PUBLIC_BRAND_LOGO ile ezebilirsin
+ * (ör. "/logo.png" veya tam bir URL).
  */
 export function BrandMark({
   size = 30,
