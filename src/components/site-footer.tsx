@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { Starball } from "./starball";
+import { BrandMark } from "./brand-mark";
 
 export function SiteFooter() {
   return (
     <footer className="border-t border-white/8 bg-night-1000/70">
       <div className="mx-auto flex w-full max-w-shell flex-col gap-4 px-4 py-9 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <div className="flex items-start gap-3">
-          <Starball size={26} className="mt-0.5 opacity-45" />
+          <BrandMark size={26} className="mt-0.5 opacity-45" />
           <p className="max-w-lg text-xs leading-relaxed text-silver-500">
             Tahmin Ligi 2026/27 — bağımsız bir taraftar projesidir, UEFA ile bağlantısı yoktur.
             Maç verileri{" "}

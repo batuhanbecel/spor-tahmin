@@ -49,3 +49,6 @@ next-env.d.ts
 
 # vercel
 .vercel
+
+# ornek env dosyasi repoda kalsin
+!.env.example

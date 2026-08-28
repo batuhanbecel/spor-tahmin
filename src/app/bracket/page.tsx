@@ -6,6 +6,7 @@ import { matches, teams } from "@/db/schema";
 import { BracketBuilder } from "@/components/bracket-builder";
 import type { SortableTeam } from "@/components/standings-sorter";
 import { getBracketPrediction } from "@/lib/queries";
+import { FixtureNotice } from "@/components/fixture-notice";
 import { getSession } from "@/lib/session";
 import { formatDateTime, nowMs } from "@/lib/utils";
 
@@ -84,6 +85,8 @@ export default async function BracketPage() {
           </div>
         </div>
       )}
+
+      <FixtureNotice />
 
       <BracketBuilder
         teams={sortable}

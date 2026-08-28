@@ -5,6 +5,7 @@ import { db } from "@/db";
 import { matches, teams } from "@/db/schema";
 import { StandingsSorter, type SortableTeam } from "@/components/standings-sorter";
 import { getStandingsPrediction } from "@/lib/queries";
+import { FixtureNotice } from "@/components/fixture-notice";
 import { getSession } from "@/lib/session";
 import { RULES } from "@/lib/scoring";
 import { formatDateTime, nowMs } from "@/lib/utils";
@@ -87,6 +88,8 @@ export default async function SiralamaPage() {
           </div>
         </div>
       )}
+
+      <FixtureNotice />
 
       <StandingsSorter
         teams={sortable}

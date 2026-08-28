@@ -25,14 +25,30 @@ export type SyncReport = {
   standingsScored: number;
   bracketScored: number;
   at: string;
+  /** "live" = doğru sezon içeri alındı, "awaiting" = 2026/27 henüz yayınlanmadı */
+  fixtureStatus: "live" | "awaiting";
   /** API'ye yapılan her çağrının sonucu — boş dönerse sebebini burada gör. */
   diagnostics: {
     season: string | null;
     currentSeason?: { startDate: string; endDate: string; currentMatchday: number | null };
     attempts: FdAttempt[];
     note?: string;
+    purged?: number;
   };
 };
+
+/** Hedef sezon: 2026/27. API bu sezona geçene kadar veri içeri alınmaz. */
+export const TARGET_SEASON_START_YEAR = Number(process.env.FD_TARGET_SEASON ?? "2026");
+
+async function putSetting(key: string, value: string) {
+  await db
+    .insert(settings)
+    .values({ key, value })
+    .onConflictDoUpdate({
+      target: settings.key,
+      set: { value: sql`excluded.value`, updatedAt: new Date() },
+    });
+}
 
 /** football-data'dan takımları ve fikstürü çekip veritabanına yazar. */
 export async function syncCompetition(): Promise<SyncReport> {
@@ -43,6 +59,58 @@ export async function syncCompetition(): Promise<SyncReport> {
     fetchTeams(attempts),
     fetchMatches(attempts),
   ]);
+
+  /* ----------------------------------------------------------------
+   * Sezon kontrolü.
+   * football-data kura sonrası bir süre eski sezonu "current" göstermeye
+   * devam ediyor. O veriyi içeri alırsak 2026/27 tahmin ligi geçen sezonun
+   * fikstürüyle dolar. Bu yüzden hedef sezon gelene kadar hiçbir şey yazmıyor,
+   * daha önce yanlışlıkla yazılmışsa temizliyoruz.
+   * ---------------------------------------------------------------- */
+  const seasonStartYear = competition?.currentSeason?.startDate
+    ? Number(competition.currentSeason.startDate.slice(0, 4))
+    : null;
+
+  const seasonIsTarget =
+    seasonStartYear === null || seasonStartYear >= TARGET_SEASON_START_YEAR;
+
+  if (!seasonIsTarget) {
+    const purged = await purgeAllMatches();
+    const at = new Date().toISOString();
+    await putSetting("last_sync", at);
+    await putSetting("fixture_status", "awaiting");
+    await putSetting(
+      "awaiting_note",
+      `football-data hâlâ ${seasonStartYear}/${String((seasonStartYear ?? 0) + 1).slice(2)} sezonunu güncel gösteriyor.`,
+    );
+
+    return {
+      teams: 0,
+      matches: 0,
+      scoredPredictions: 0,
+      standingsScored: 0,
+      bracketScored: 0,
+      at,
+      fixtureStatus: "awaiting",
+      diagnostics: {
+        season: SEASON,
+        currentSeason: competition?.currentSeason
+          ? {
+              startDate: competition.currentSeason.startDate,
+              endDate: competition.currentSeason.endDate,
+              currentMatchday: competition.currentSeason.currentMatchday,
+            }
+          : undefined,
+        attempts,
+        purged,
+        note:
+          `API'nin güncel sezonu ${seasonStartYear}/${String((seasonStartYear ?? 0) + 1).slice(2)} — ` +
+          `hedef ${TARGET_SEASON_START_YEAR}/${String(TARGET_SEASON_START_YEAR + 1).slice(2)}. ` +
+          `Yanlış sezon verisi içeri alınmadı${purged ? `, ${purged} eski maç temizlendi` : ""}. ` +
+          `football-data yeni sezona geçince bu senkron kendiliğinden dolduracak.`,
+      },
+    };
+  }
 
   const teamRows = teamRes.teams.map((t) => ({
     id: t.id,
@@ -131,18 +199,16 @@ export async function syncCompetition(): Promise<SyncReport> {
       });
   }
 
+  // API'de artık olmayan maçları (ör. önceki sezondan kalanlar) temizle
+  const purged = await purgeMatchesNotIn(matchRows.map((m) => m.id));
+
   const scored = await scorePendingPredictions();
   const standingsScored = await scoreStandingsPredictions();
   const bracketScored = await scoreBracketPredictions();
 
   const at = new Date().toISOString();
-  await db
-    .insert(settings)
-    .values({ key: "last_sync", value: at })
-    .onConflictDoUpdate({
-      target: settings.key,
-      set: { value: sql`excluded.value`, updatedAt: new Date() },
-    });
+  await putSetting("last_sync", at);
+  await putSetting("fixture_status", matchRows.length ? "live" : "awaiting");
 
   let note: string | undefined;
   if (matchRows.length === 0) {
@@ -167,7 +233,9 @@ export async function syncCompetition(): Promise<SyncReport> {
     standingsScored,
     bracketScored,
     at,
+    fixtureStatus: matchRows.length ? "live" : "awaiting",
     diagnostics: {
+      purged,
       season: SEASON,
       currentSeason: competition?.currentSeason
         ? {
@@ -310,4 +378,49 @@ export async function scoreBracketPredictions(): Promise<number> {
     count++;
   }
   return count;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Temizlik                                                           */
+/* ------------------------------------------------------------------ */
+
+/** Tüm maçları siler (yanlış sezon içeri alınmışsa). Kaç satır silindiğini döner. */
+async function purgeAllMatches(): Promise<number> {
+  const [{ count } = { count: 0 }] = (await db.execute(
+    sql`select count(*)::int as count from matches`,
+  )).rows as unknown as { count: number }[];
+  if (!Number(count)) return 0;
+  await db.execute(sql`delete from matches`);
+  return Number(count);
+}
+
+/** API'den gelen listede olmayan maçları siler (sezon değişimi temizliği). */
+async function purgeMatchesNotIn(keepIds: number[]): Promise<number> {
+  if (!keepIds.length) return 0;
+  const ids = sql.join(keepIds.map((id) => sql`${id}`), sql`,`);
+  const res = await db.execute(
+    sql`with gone as (delete from matches where id not in (${ids}) returning 1)
+        select count(*)::int as count from gone`,
+  );
+  const row = (res.rows as unknown as { count: number }[])[0];
+  return Number(row?.count ?? 0);
+}
+
+/** Fikstürün durumu — sayfalarda uyarı şeridi göstermek için. */
+export async function getFixtureStatus(): Promise<{
+  status: "live" | "awaiting";
+  note: string | null;
+  lastSync: string | null;
+}> {
+  const res = await db.execute(
+    sql`select key, value from settings where key in ('fixture_status','awaiting_note','last_sync')`,
+  );
+  const map = new Map(
+    (res.rows as unknown as { key: string; value: string | null }[]).map((r) => [r.key, r.value]),
+  );
+  return {
+    status: map.get("fixture_status") === "live" ? "live" : "awaiting",
+    note: map.get("awaiting_note") ?? null,
+    lastSync: map.get("last_sync") ?? null,
+  };
 }

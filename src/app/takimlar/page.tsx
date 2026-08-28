@@ -5,6 +5,7 @@ import { db } from "@/db";
 import { matches, teams } from "@/db/schema";
 import { TeamCrest } from "@/components/team-badge";
 import { StarballWatermark } from "@/components/starball";
+import { FixtureNotice } from "@/components/fixture-notice";
 
 export const metadata: Metadata = { title: "Takımlar" };
 export const dynamic = "force-dynamic";
@@ -32,6 +33,8 @@ export default async function TakimlarPage() {
           kupayı kaldıracağını kim düşünüyor — hepsi tek sayfada.
         </p>
       </header>
+
+      <FixtureNotice />
 
       {list.length === 0 ? (
         <div className="panel p-12 text-center text-sm text-silver-500">

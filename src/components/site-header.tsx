@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getSession } from "@/lib/session";
 import { displayName } from "@/lib/utils";
-import { Starball } from "./starball";
+import { BrandMark } from "./brand-mark";
 import { MobileNav } from "./mobile-nav";
 import { UserMenu } from "./user-menu";
 
@@ -22,7 +22,7 @@ export async function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-white/8 bg-night-1000/85 backdrop-blur-xl">
       <div className="mx-auto flex h-[64px] w-full max-w-shell items-center gap-5 px-4 sm:px-6">
         <Link href="/" className="group flex shrink-0 items-center gap-2.5">
-          <Starball size={30} className="transition-transform group-hover:rotate-[22deg]" />
+          <BrandMark size={30} className="transition-transform group-hover:rotate-[22deg]" />
           <span className="hidden leading-none sm:block">
             <span className="display block text-[15px] text-silver-100">Tahmin Ligi</span>
             <span className="block pt-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-silver-500">

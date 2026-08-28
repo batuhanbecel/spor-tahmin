@@ -5,6 +5,7 @@ import { db } from "@/db";
 import { matches, teams } from "@/db/schema";
 import { MatchdayPredictor, type PredictableMatch } from "@/components/matchday-predictor";
 import { getNextMatchday, getUserPredictions } from "@/lib/queries";
+import { FixtureNotice } from "@/components/fixture-notice";
 import { getSession } from "@/lib/session";
 import { cn, STAGE_LABELS } from "@/lib/utils";
 
@@ -112,6 +113,8 @@ export default async function MaclarPage({
           </Link>
         ))}
       </div>
+
+      <FixtureNotice />
 
       <MatchdayPredictor matches={data} signedIn={Boolean(session?.user)} />
     </div>
