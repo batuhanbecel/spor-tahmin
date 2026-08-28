@@ -21,7 +21,10 @@ export function BrandMark({
   className?: string;
   tone?: "silver" | "gold" | "blue";
 }) {
-  const custom = process.env.NEXT_PUBLIC_BRAND_LOGO?.trim();
+  // Varsayılan: public/logo.svg (favicon ile aynı çizim).
+  // Kendi logonu koymak için public/logo.svg dosyasını değiştirmen yeterli;
+  // farklı bir yol istersen NEXT_PUBLIC_BRAND_LOGO ile ez.
+  const custom = process.env.NEXT_PUBLIC_BRAND_LOGO?.trim() || "/logo.svg";
 
   if (custom) {
     return (

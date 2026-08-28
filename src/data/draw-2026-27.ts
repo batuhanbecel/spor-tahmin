@@ -18,6 +18,49 @@ export type DrawTeam = {
   home: string[];
 };
 
+/**
+ * Arma eşleştirme için football-data'daki ada dair ipuçları.
+ * Tohum betiği önce tam ad, sonra bu takma adlarla eşleştirmeyi dener.
+ */
+export const FD_ALIASES: Record<string, string[]> = {
+  "Paris": ["Paris Saint-Germain FC", "Paris Saint-Germain"],
+  "Bayern München": ["FC Bayern München", "Bayern Munich"],
+  "Real Madrid": ["Real Madrid CF"],
+  "Liverpool": ["Liverpool FC"],
+  "Inter": ["FC Internazionale Milano", "Internazionale"],
+  "Man City": ["Manchester City FC"],
+  "Arsenal": ["Arsenal FC"],
+  "Barcelona": ["FC Barcelona"],
+  "Atleti": ["Club Atlético de Madrid", "Atlético de Madrid"],
+  "Borussia Dortmund": ["Borussia Dortmund"],
+  "Roma": ["AS Roma"],
+  "Sporting CP": ["Sporting Clube de Portugal"],
+  "Aston Villa": ["Aston Villa FC"],
+  "Porto": ["FC Porto"],
+  "Man United": ["Manchester United FC"],
+  "Club Brugge": ["Club Brugge KV"],
+  "Real Betis": ["Real Betis Balompié"],
+  "PSV": ["PSV Eindhoven"],
+  "Feyenoord": ["Feyenoord Rotterdam"],
+  "Lille": ["Lille OSC"],
+  "Napoli": ["SSC Napoli"],
+  "Leipzig": ["RB Leipzig"],
+  "Villarreal": ["Villarreal CF"],
+  "Shakhtar": ["FC Shakhtar Donetsk", "Shakhtar Donetsk"],
+  "Galatasaray": ["Galatasaray SK"],
+  "Slavia Praha": ["SK Slavia Praha"],
+  "Stuttgart": ["VfB Stuttgart"],
+  "Fenerbahçe": ["Fenerbahçe SK", "Fenerbahce"],
+  "Bodø/Glimt": ["FK Bodø/Glimt", "Bodo/Glimt"],
+  "Como": ["Como 1907"],
+  "Lens": ["RC Lens"],
+  "AEK Athens": ["AEK Athens FC", "AEK Athens"],
+  "LASK": ["LASK", "LASK Linz"],
+  "Slovan Bratislava": ["ŠK Slovan Bratislava", "Slovan Bratislava"],
+  "Viking": ["Viking FK"],
+  "Sabah": ["Sabah FK", "Sabah FC"],
+};
+
 export const DRAW: DrawTeam[] = [
   { key: "Paris", name: "Paris Saint-Germain", tla: "PSG", country: "Fransa", pot: 1,
     home: ["Barcelona", "Roma", "Galatasaray", "Slovan Bratislava"] },

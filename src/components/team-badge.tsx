@@ -3,9 +3,17 @@ import { cn } from "@/lib/utils";
 
 type CrestTeam = Pick<Team, "crest" | "name" | "tla" | "shortName">;
 
+/** Takım adından kararlı bir renk üretir — armasız rozetler birbirinden ayrılsın. */
+function hueFor(name: string): number {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) % 360;
+  return h;
+}
+
 /**
- * Kulüp arması. football-data.org armaları hem PNG hem SVG olabiliyor;
- * ikisi de <img> ile sorunsuz. Arma yoksa TLA rozetine düşüyoruz.
+ * Kulüp arması. football-data armaları PNG ya da SVG olabiliyor; ikisi de
+ * <img> ile sorunsuz. Arma yoksa takıma özgü renkli bir TLA rozeti çizilir —
+ * boş gri kutu yerine kasıtlı görünsün diye.
  */
 export function TeamCrest({
   team,
@@ -33,16 +41,25 @@ export function TeamCrest({
     );
   }
 
+  const label = team?.tla ?? "?";
+  const hue = hueFor(team?.name ?? label);
+
   return (
     <span
       className={cn(
-        "grid shrink-0 place-items-center rounded-md bg-white/8 font-bold text-silver-500",
+        "grid shrink-0 place-items-center rounded-md font-bold leading-none ring-1 ring-inset ring-white/10",
         className,
       )}
-      style={{ width: size, height: size, fontSize: Math.max(9, size * 0.32) }}
+      style={{
+        width: size,
+        height: size,
+        fontSize: Math.max(8, size * 0.3),
+        background: `linear-gradient(150deg, hsl(${hue} 55% 32%), hsl(${(hue + 28) % 360} 50% 20%))`,
+        color: `hsl(${hue} 70% 88%)`,
+      }}
       title={team?.name ?? undefined}
     >
-      {team?.tla ?? "?"}
+      {label}
     </span>
   );
 }
