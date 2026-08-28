@@ -200,7 +200,13 @@ export async function syncCompetition(): Promise<SyncReport> {
   }
 
   // API'de artık olmayan maçları (ör. önceki sezondan kalanlar) temizle
-  const purged = await purgeMatchesNotIn(matchRows.map((m) => m.id));
+  let purged = await purgeMatchesNotIn(matchRows.map((m) => m.id));
+
+  // Gerçek fikstür geldiyse kura tohumunu (negatif id'ler) tamamen kaldır
+  if (matchRows.length) {
+    purged += await purgeSeedRows();
+    await putSetting("fixture_source", "api");
+  }
 
   const scored = await scorePendingPredictions();
   const standingsScored = await scoreStandingsPredictions();
@@ -392,6 +398,17 @@ async function purgeAllMatches(): Promise<number> {
   if (!Number(count)) return 0;
   await db.execute(sql`delete from matches`);
   return Number(count);
+}
+
+/** Kura tohumunu siler: negatif id'li maçlar ve takımlar. */
+async function purgeSeedRows(): Promise<number> {
+  const res = await db.execute(
+    sql`with gone as (delete from matches where id < 0 returning 1)
+        select count(*)::int as count from gone`,
+  );
+  const n = Number((res.rows as unknown as { count: number }[])[0]?.count ?? 0);
+  await db.execute(sql`delete from teams where id < 0`);
+  return n;
 }
 
 /** API'den gelen listede olmayan maçları siler (sezon değişimi temizliği). */

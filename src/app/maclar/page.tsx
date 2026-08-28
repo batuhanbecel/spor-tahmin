@@ -27,17 +27,29 @@ export default async function MaclarPage({
 
   const stageParam = sp.tur && KO_STAGES.includes(sp.tur as (typeof KO_STAGES)[number]) ? sp.tur : null;
 
+  const leagueRows = await db
+    .select()
+    .from(matches)
+    .where(eq(matches.stage, "LEAGUE_STAGE"))
+    .orderBy(asc(matches.utcDate));
+
+  /**
+   * Takvim modu: maçların haftası belliyse hafta sekmeleriyle göster.
+   * Kura modu: takvim henüz yayınlanmadıysa 144 eşleşmeyi tek listede ver.
+   */
+  const calendarMode = leagueRows.some((m) => m.matchday != null);
+
   const defaultMatchday = await getNextMatchday();
-  const matchday = stageParam ? null : Number(sp.hafta ?? defaultMatchday) || defaultMatchday;
+  const matchday =
+    stageParam || !calendarMode
+      ? null
+      : Number(sp.hafta ?? defaultMatchday) || defaultMatchday;
 
   const rows = stageParam
     ? await db.select().from(matches).where(eq(matches.stage, stageParam)).orderBy(asc(matches.utcDate))
-    : await db
-        .select()
-        .from(matches)
-        .where(eq(matches.stage, "LEAGUE_STAGE"))
-        .orderBy(asc(matches.utcDate))
-        .then((all) => all.filter((m) => m.matchday === matchday));
+    : calendarMode
+      ? leagueRows.filter((m) => m.matchday === matchday)
+      : leagueRows;
 
   const preds = session?.user
     ? await getUserPredictions(session.user.id, rows.map((m) => m.id))
@@ -78,11 +90,13 @@ export default async function MaclarPage({
       <header className="space-y-1">
         <h1 className="display text-3xl text-silver-100 sm:text-4xl">Maçlar</h1>
         <p className="text-sm text-silver-500">
-          Her maç için skor tahmini gir. Tahminler maçın başlama saatinde kilitlenir.
+          {calendarMode
+            ? "Her maç için skor tahmini gir. Tahminler maçın başlama saatinde kilitlenir."
+            : "Kuradan çıkan 144 eşleşme. 1 / X / 2 ile hızlı seç ya da skor yaz — takvim açıklanınca haftalara bölünecek."}
         </p>
       </header>
 
-      <div className="flex flex-wrap items-center gap-1.5">
+      <div className={cn("flex flex-wrap items-center gap-1.5", !calendarMode && "hidden")}>
         {Array.from({ length: 8 }, (_, i) => i + 1).map((md) => (
           <Link
             key={md}
@@ -116,7 +130,11 @@ export default async function MaclarPage({
 
       <FixtureNotice />
 
-      <MatchdayPredictor matches={data} signedIn={Boolean(session?.user)} />
+      <MatchdayPredictor
+        matches={data}
+        signedIn={Boolean(session?.user)}
+        grouped={calendarMode || Boolean(stageParam)}
+      />
     </div>
   );
 }

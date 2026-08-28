@@ -90,3 +90,11 @@ export function hasStarted(
   const d = typeof match.utcDate === "string" ? new Date(match.utcDate) : match.utcDate;
   return d.getTime() <= now;
 }
+
+/** Kura tohumu kayıtları negatif id kullanır — takvim henüz yok demektir. */
+export function isSeeded(id: number): boolean {
+  return id < 0;
+}
+
+/** Takvim yoksa tarih yerine bunu göster. */
+export const NO_DATE_LABEL = "Tarih açıklanmadı";

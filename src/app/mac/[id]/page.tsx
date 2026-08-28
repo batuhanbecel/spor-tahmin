@@ -9,7 +9,7 @@ import { TeamCrest } from "@/components/team-badge";
 import { UserChip } from "@/components/avatar";
 import { PredictionBar } from "@/components/prediction-bar";
 import { getMatchAggregates, getMatchPredictionList } from "@/lib/insights";
-import { cn, formatDateTime, hasStarted, STAGE_LABELS, STATUS_LABELS } from "@/lib/utils";
+import { cn, formatDateTime, hasStarted, isSeeded, NO_DATE_LABEL, STAGE_LABELS, STATUS_LABELS } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -56,11 +56,13 @@ export default async function MacPage({ params }: { params: Promise<{ id: string
       <div className="flex flex-wrap items-center gap-2 text-sm">
         <span className="chip">
           {match.stage === "LEAGUE_STAGE"
-            ? `${match.matchday}. hafta`
+            ? (match.matchday ? `${match.matchday}. hafta` : "Lig aşaması")
             : STAGE_LABELS[match.stage]}
         </span>
         <span className="chip">{STATUS_LABELS[match.status] ?? match.status}</span>
-        <span className="num text-silver-500">{formatDateTime(match.utcDate)}</span>
+        <span className="num text-silver-500">
+          {isSeeded(match.id) ? NO_DATE_LABEL : formatDateTime(match.utcDate)}
+        </span>
       </div>
 
       {/* ---------------------------------------------------------- skor tablosu */}

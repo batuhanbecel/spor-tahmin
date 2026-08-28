@@ -10,7 +10,7 @@ import { PredictionBar } from "@/components/prediction-bar";
 import { getMatchAggregates } from "@/lib/insights";
 import { getGlobalLeaderboard } from "@/lib/queries";
 import { getSession } from "@/lib/session";
-import { formatDateTime } from "@/lib/utils";
+import { formatDateTime, isSeeded, NO_DATE_LABEL } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -136,7 +136,7 @@ export default async function HomePage() {
                       <TeamCrest team={a} size={26} />
                     </div>
                     <p className="num mt-2 text-center text-[11px] text-silver-600">
-                      {formatDateTime(m.utcDate)}
+                      {isSeeded(m.id) ? NO_DATE_LABEL : formatDateTime(m.utcDate)}
                     </p>
                     <PredictionBar
                       agg={aggregates.get(m.id)}

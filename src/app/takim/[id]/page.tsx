@@ -13,7 +13,7 @@ import {
   getTeamBracketInsight,
   getTeamStandingsInsight,
 } from "@/lib/insights";
-import { cn, formatDateTime, hasStarted, nowMs, STAGE_LABELS } from "@/lib/utils";
+import { cn, formatDateTime, hasStarted, isSeeded, NO_DATE_LABEL, nowMs, STAGE_LABELS } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -117,7 +117,9 @@ export default async function TakimPage({ params }: { params: Promise<{ id: stri
                 >
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
                     <span className="chip w-[62px] justify-center">
-                      {m.stage === "LEAGUE_STAGE" ? `${m.matchday}. hf` : STAGE_LABELS[m.stage]}
+                      {m.stage === "LEAGUE_STAGE"
+                        ? (m.matchday ? `${m.matchday}. hf` : "Lig")
+                        : STAGE_LABELS[m.stage]}
                     </span>
                     <span className="chip w-[34px] justify-center" title={isHome ? "Ev sahibi" : "Deplasman"}>
                       {isHome ? "EV" : "DEP"}
@@ -136,7 +138,7 @@ export default async function TakimPage({ params }: { params: Promise<{ id: stri
                       </span>
                     ) : (
                       <span className="num shrink-0 text-xs text-silver-500">
-                        {formatDateTime(m.utcDate)}
+                        {isSeeded(m.id) ? NO_DATE_LABEL : formatDateTime(m.utcDate)}
                       </span>
                     )}
                     <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-silver-600 transition-transform group-hover:translate-x-0.5 group-hover:text-silver-300 sm:ml-0" />

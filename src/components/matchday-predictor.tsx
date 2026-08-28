@@ -26,9 +26,12 @@ type Draft = Record<number, { h: string; a: string }>;
 export function MatchdayPredictor({
   matches,
   signedIn,
+  grouped = true,
 }: {
   matches: PredictableMatch[];
   signedIn: boolean;
+  /** false ise gün başlıkları olmadan tek liste (takvim yokken) */
+  grouped?: boolean;
 }) {
   const [draft, setDraft] = useState<Draft>(() => {
     const d: Draft = {};
@@ -44,7 +47,8 @@ export function MatchdayPredictor({
   const [feedback, setFeedback] = useState<{ ok: boolean; message: string } | null>(null);
 
   const [now] = useState(() => nowMs());
-  const grouped = useMemo(() => {
+  const groups = useMemo(() => {
+    if (!grouped) return [["", matches]] as [string, PredictableMatch[]][];
     const map = new Map<string, PredictableMatch[]>();
     for (const m of matches) {
       const key = formatDay(m.utcDate);
@@ -52,7 +56,7 @@ export function MatchdayPredictor({
       map.get(key)!.push(m);
     }
     return [...map.entries()];
-  }, [matches]);
+  }, [matches, grouped]);
 
   const openCount = matches.filter(
     (m) => new Date(m.utcDate).getTime() > now && m.status !== "FINISHED",
@@ -62,6 +66,12 @@ export function MatchdayPredictor({
     const d = draft[m.id];
     return d && d.h !== "" && d.a !== "";
   }).length;
+
+  /** Hızlı seçim: 1 / X / 2 tıklayınca makul bir skor yazar. */
+  function quick(id: number, h: number, a: number) {
+    setDraft((prev) => ({ ...prev, [id]: { h: String(h), a: String(a) } }));
+    setFeedback(null);
+  }
 
   function set(id: number, side: "h" | "a", value: string) {
     const clean = value.replace(/[^0-9]/g, "").slice(0, 2);
@@ -117,11 +127,13 @@ export function MatchdayPredictor({
         </div>
       )}
 
-      {grouped.map(([day, dayMatches]) => (
+      {groups.map(([day, dayMatches]) => (
         <section key={day} className="space-y-2">
-          <h3 className="px-1 text-xs font-semibold uppercase tracking-wider text-silver-500">
-            {day}
-          </h3>
+          {day && (
+            <h3 className="px-1 text-xs font-semibold uppercase tracking-wider text-silver-500">
+              {day}
+            </h3>
+          )}
           <div className="panel divide-y divide-white/6 overflow-hidden">
             {dayMatches.map((m) => {
               const locked = new Date(m.utcDate).getTime() <= now || m.status === "FINISHED";
@@ -162,11 +174,40 @@ export function MatchdayPredictor({
                         />
                       </div>
                     )}
+                    {!finished && !locked && signedIn && (
+                      <div className="flex gap-1">
+                        {([
+                          ["1", 2, 1],
+                          ["X", 1, 1],
+                          ["2", 1, 2],
+                        ] as const).map(([label, h, a]) => {
+                          const active = d.h === String(h) && d.a === String(a);
+                          return (
+                            <button
+                              key={label}
+                              type="button"
+                              aria-label={`${label} — ${h}-${a} yaz`}
+                              onClick={() => quick(m.id, h, a)}
+                              className={cn(
+                                "h-6 w-7 cursor-pointer rounded text-[11px] font-bold transition-colors",
+                                active
+                                  ? "bg-blue-500 text-white"
+                                  : "bg-white/6 text-silver-500 hover:bg-white/12 hover:text-silver-200",
+                              )}
+                            >
+                              {label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
                     <span className="flex items-center gap-1 text-[10px] font-medium text-silver-600">
                       {locked && !finished && <Lock className="h-2.5 w-2.5" />}
                       {finished
                         ? STATUS_LABELS[m.status]
-                        : formatTime(m.utcDate)}
+                        : grouped
+                          ? formatTime(m.utcDate)
+                          : "—"}
                     </span>
                   </div>
 
