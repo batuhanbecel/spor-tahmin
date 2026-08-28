@@ -17,6 +17,7 @@ import {
 } from "./football-data";
 import { scoreBracket, scoreMatch, scoreStandings } from "./scoring";
 import { computeLeagueTable } from "./standings";
+import { seedDraw } from "./seed-draw";
 
 export type SyncReport = {
   teams: number;
@@ -75,18 +76,24 @@ export async function syncCompetition(): Promise<SyncReport> {
     seasonStartYear === null || seasonStartYear >= TARGET_SEASON_START_YEAR;
 
   if (!seasonIsTarget) {
-    const purged = await purgeAllMatches();
+    /**
+     * Takvim gelmedi ama kura belli — 2026/27 eşleşmelerini tohumla.
+     * Eski sezondan kalan her şey içeride siliniyor, armalar bu çağrının
+     * elindeki takım listesinden ada göre eşleştiriliyor.
+     */
+    const seed = await seedDraw(teamRes.teams);
     const at = new Date().toISOString();
     await putSetting("last_sync", at);
     await putSetting("fixture_status", "awaiting");
+    await putSetting("fixture_source", "draw");
     await putSetting(
       "awaiting_note",
       `football-data hâlâ ${seasonStartYear}/${String((seasonStartYear ?? 0) + 1).slice(2)} sezonunu güncel gösteriyor.`,
     );
 
     return {
-      teams: 0,
-      matches: 0,
+      teams: seed.teams,
+      matches: seed.matches,
       scoredPredictions: 0,
       standingsScored: 0,
       bracketScored: 0,
@@ -102,12 +109,14 @@ export async function syncCompetition(): Promise<SyncReport> {
             }
           : undefined,
         attempts,
-        purged,
+        purged: seed.purged,
         note:
           `API'nin güncel sezonu ${seasonStartYear}/${String((seasonStartYear ?? 0) + 1).slice(2)} — ` +
           `hedef ${TARGET_SEASON_START_YEAR}/${String(TARGET_SEASON_START_YEAR + 1).slice(2)}. ` +
-          `Yanlış sezon verisi içeri alınmadı${purged ? `, ${purged} eski maç temizlendi` : ""}. ` +
-          `football-data yeni sezona geçince bu senkron kendiliğinden dolduracak.`,
+          `Takvim gelmediği için kura tohumlandı: ${seed.teams} takım, ${seed.matches} eşleşme, ` +
+          `${seed.crestsMatched} arma eşleşti` +
+          `${seed.purged ? `, ${seed.purged} eski maç temizlendi` : ""}. ` +
+          `football-data yeni sezona geçince gerçek fikstür bunun yerini alacak.`,
       },
     };
   }
@@ -389,16 +398,6 @@ export async function scoreBracketPredictions(): Promise<number> {
 /* ------------------------------------------------------------------ */
 /*  Temizlik                                                           */
 /* ------------------------------------------------------------------ */
-
-/** Tüm maçları siler (yanlış sezon içeri alınmışsa). Kaç satır silindiğini döner. */
-async function purgeAllMatches(): Promise<number> {
-  const [{ count } = { count: 0 }] = (await db.execute(
-    sql`select count(*)::int as count from matches`,
-  )).rows as unknown as { count: number }[];
-  if (!Number(count)) return 0;
-  await db.execute(sql`delete from matches`);
-  return Number(count);
-}
 
 /** Kura tohumunu siler: negatif id'li maçlar ve takımlar. */
 async function purgeSeedRows(): Promise<number> {
